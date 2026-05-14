@@ -5,835 +5,1044 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TLTV Reduction Analysis — Cars24 NBFC</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13.5px; background: #f4f6f9; color: #1a1a2e; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:13.5px;background:#f4f6f9;color:#1a1a2e}
+.page{max-width:1240px;margin:0 auto;padding:20px 24px 60px}
+.report-header{background:linear-gradient(135deg,#1a1a2e,#16213e 60%,#0f3460);color:#fff;border-radius:10px;padding:26px 32px;margin-bottom:14px}
+.report-header h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.report-header .subtitle{font-size:13px;color:#a8b8d8;margin-bottom:14px}
+.meta-chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;font-size:11.5px;color:#d0e4ff}
 
-  /* ── Layout ── */
-  .page { max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px; }
+/* Tab Navigation */
+.tab-nav{position:sticky;top:0;z-index:50;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:6px;display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px}
+.tab-btn{flex:1;min-width:140px;background:transparent;border:none;padding:11px 14px;font-size:12.5px;font-weight:600;color:#555;cursor:pointer;border-radius:7px;transition:all 0.18s;font-family:inherit}
+.tab-btn:hover{background:#f0f3f9;color:#0f3460}
+.tab-btn.active{background:linear-gradient(135deg,#0f3460,#16213e);color:#fff;box-shadow:0 2px 6px rgba(15,52,96,0.3)}
+.tab-btn .tab-num{display:inline-block;background:rgba(255,255,255,0.2);color:inherit;border-radius:50%;width:20px;height:20px;line-height:20px;text-align:center;font-size:11px;margin-right:6px}
+.tab-btn:not(.active) .tab-num{background:#e0e4ec;color:#666}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn 0.25s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ── Header ── */
-  .report-header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); color: #fff; border-radius: 10px; padding: 32px 36px; margin-bottom: 28px; }
-  .report-header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.4px; margin-bottom: 6px; }
-  .report-header .subtitle { font-size: 13px; color: #a8b8d8; margin-bottom: 18px; }
-  .meta-chips { display: flex; flex-wrap: wrap; gap: 10px; }
-  .chip { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 14px; font-size: 12px; color: #d0e4ff; }
+.section{background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,0.08);padding:24px 28px;margin-bottom:18px}
+.section-title{font-size:15px;font-weight:700;color:#0f3460;border-left:4px solid #0f3460;padding-left:12px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px}
+.section-sub{font-size:13px;font-weight:600;color:#333;margin:16px 0 9px;padding-bottom:5px;border-bottom:1px solid #e8ecf1}
+.callout{border-radius:7px;padding:12px 16px;margin:12px 0;font-size:13px;line-height:1.6}
+.callout-blue{background:#eaf1fb;border-left:4px solid #1565c0}
+.callout-green{background:#e8f5e9;border-left:4px solid #2e7d32}
+.callout-amber{background:#fff8e1;border-left:4px solid #f57f17}
+.callout-red{background:#fce4ec;border-left:4px solid #c62828}
+.callout strong{font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+th{background:#0f3460;color:#fff;padding:9px 12px;text-align:left;font-weight:600;font-size:12px}
+th.center,td.center{text-align:center}
+td{padding:8px 12px;border-bottom:1px solid #eef0f4;vertical-align:middle}
+tr:hover td{background:#f7f9fc}
+tr.total-row td{background:#eef3fb;font-weight:700;border-top:2px solid #0f3460}
+tr.sub-total td{background:#f4f6fa;font-weight:600}
+.tag-car{background:#e3f2fd;color:#0d47a1;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600}
+.tag-loan{background:#e8f5e9;color:#1b5e20;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600}
+.note-pill{background:#fff3e0;color:#e65100;border-radius:4px;padding:2px 7px;font-size:10.5px}
+.note-normal{background:#f1f8e9;color:#33691e;border-radius:4px;padding:2px 7px;font-size:10.5px}
+.metric-row{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+.metric-card{flex:1;min-width:140px;background:#f4f6f9;border-radius:8px;padding:14px 16px;border:1px solid #e0e4ec}
+.metric-card .label{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.metric-card .value{font-size:22px;font-weight:700;color:#0f3460}
+.metric-card .sub{font-size:11px;color:#888;margin-top:2px}
+.metric-card.red .value{color:#c62828}
+.metric-card.amber .value{color:#e65100}
+.metric-card.green .value{color:#2e7d32}
+.metric-card.blue .value{color:#1565c0}
+.pbar-wrap{background:#e8ecf1;border-radius:4px;height:12px;overflow:hidden;margin:3px 0}
+.pbar{height:100%;border-radius:4px}
+.pbar-red{background:#e53935}
+.pbar-amber{background:#fb8c00}
+.pbar-green{background:#43a047}
+.step-box{border:1px solid #dde3ee;border-radius:8px;padding:14px 18px;margin:12px 0}
+.step-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.step-badge{background:#0f3460;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.step-title{font-weight:700;font-size:13.5px;color:#1a1a2e}
+.step-formula{background:#f4f6f9;border-radius:6px;padding:8px 14px;font-family:monospace;font-size:12.5px;color:#0f3460;margin:8px 0}
+.bucket-header{background:linear-gradient(90deg,#0f3460,#16213e);color:#fff;border-radius:7px;padding:10px 16px;margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center}
+.bucket-header .bname{font-size:14.5px;font-weight:700}
+.bucket-header .bmeta{font-size:11.5px;color:#a8c0e0}
+.highlight-cell{background:#fffde7;font-weight:700}
+.rec-box{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border:2px solid #2e7d32;border-radius:10px;padding:18px 22px;margin:16px 0}
+.rec-box h3{color:#1b5e20;font-size:14px;margin-bottom:10px}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:10px}
+.rec-item{background:#fff;border-radius:8px;padding:12px;border:1px solid #a5d6a7;text-align:center}
+.rec-item .rlabel{font-size:11px;color:#555;margin-bottom:4px}
+.rec-item .rval{font-size:22px;font-weight:800;color:#1b5e20}
+.rec-item .rsub{font-size:11px;color:#777;margin-top:4px}
+.open-point{background:#fff8e1;border:1px solid #ffca28;border-radius:7px;padding:12px 16px;margin:9px 0}
+.open-point .op-title{font-weight:700;color:#e65100;margin-bottom:5px;font-size:13px}
+.footer{text-align:center;font-size:11px;color:#999;margin-top:24px}
+.divider{border:none;border-top:1px solid #e8ecf1;margin:16px 0}
 
-  /* ── Section ── */
-  .section { background: #fff; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); padding: 28px 30px; margin-bottom: 22px; }
-  .section-title { font-size: 15px; font-weight: 700; color: #0f3460; border-left: 4px solid #0f3460; padding-left: 12px; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .section-sub { font-size: 13px; font-weight: 600; color: #333; margin: 18px 0 10px; padding-bottom: 5px; border-bottom: 1px solid #e8ecf1; }
+/* Comparison cards */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.compare-card{background:#fff;border-radius:8px;border:1px solid #dde3ee;padding:16px 18px}
+.compare-card h4{font-size:13.5px;color:#0f3460;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #0f3460}
+.compare-card.current h4{color:#c62828;border-bottom-color:#c62828}
+.compare-card.proposed h4{color:#2e7d32;border-bottom-color:#2e7d32}
 
-  /* ── Callout boxes ── */
-  .callout { border-radius: 7px; padding: 14px 18px; margin: 14px 0; font-size: 13px; line-height: 1.6; }
-  .callout-blue  { background: #eaf1fb; border-left: 4px solid #1565c0; }
-  .callout-green { background: #e8f5e9; border-left: 4px solid #2e7d32; }
-  .callout-amber { background: #fff8e1; border-left: 4px solid #f57f17; }
-  .callout-red   { background: #fce4ec; border-left: 4px solid #c62828; }
-  .callout strong { font-weight: 700; }
+/* Mockup styles */
+.mockup{background:#fff;border:1px solid #ddd;border-radius:10px;padding:18px;font-family:Arial,sans-serif;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);max-width:540px;margin:8px auto}
+.mockup-header{background:#0066cc;color:#fff;padding:10px 14px;margin:-18px -18px 14px;border-radius:10px 10px 0 0;font-weight:700;font-size:13px;text-align:center}
+.mockup-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eee}
+.mockup-row:last-child{border-bottom:none}
+.mockup-row .k{color:#555}
+.mockup-row .v{font-weight:600;color:#222}
+.mockup-tag{display:inline-block;background:#fff3e0;color:#e65100;font-size:10px;padding:1px 6px;border-radius:3px;margin-left:5px;font-weight:600}
+.mockup-tag.new{background:#e8f5e9;color:#1b5e20}
+.mockup-tag.removed{background:#ffebee;color:#c62828;text-decoration:line-through}
+.app-mockup{background:linear-gradient(180deg,#f5f7fa,#fff);border:8px solid #1a1a2e;border-radius:24px;padding:14px;max-width:300px;margin:8px auto;font-family:Arial}
+.app-mockup .app-h{background:#0066cc;color:#fff;text-align:center;padding:8px;border-radius:6px;font-size:12px;font-weight:700;margin-bottom:10px}
+.app-mockup .app-card{background:#fff;border-radius:8px;padding:10px;margin-bottom:8px;border:1px solid #eee;box-shadow:0 1px 2px rgba(0,0,0,0.04);font-size:11.5px}
 
-  /* ── Tables ── */
-  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px; }
-  th { background: #0f3460; color: #fff; padding: 9px 12px; text-align: left; font-weight: 600; font-size: 12px; }
-  th.center, td.center { text-align: center; }
-  td { padding: 8px 12px; border-bottom: 1px solid #eef0f4; vertical-align: middle; }
-  tr:hover td { background: #f7f9fc; }
-  tr.total-row td { background: #eef3fb; font-weight: 700; border-top: 2px solid #0f3460; }
-  tr.sub-total td { background: #f4f6fa; font-weight: 600; }
-  .tag-car  { background: #e3f2fd; color: #0d47a1; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 600; }
-  .tag-loan { background: #e8f5e9; color: #1b5e20; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 600; }
-  .note-pill { background: #fff3e0; color: #e65100; border-radius: 4px; padding: 2px 7px; font-size: 10.5px; }
-  .note-normal { background: #f1f8e9; color: #33691e; border-radius: 4px; padding: 2px 7px; font-size: 10.5px; }
+/* Training pyramid */
+.training-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.training-card{background:#fff;border-left:4px solid #0f3460;border-radius:7px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.training-card .tm{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.training-card .tm-num{background:#0f3460;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.training-card .tm-dur{background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.training-card h5{font-size:13px;color:#0f3460;margin-bottom:6px}
+.training-card ul{padding-left:18px;font-size:12px;line-height:1.6}
+.training-card ul li{margin-bottom:3px}
 
-  /* ── Key metric badges ── */
-  .metric-row { display: flex; flex-wrap: wrap; gap: 14px; margin: 14px 0; }
-  .metric-card { flex: 1; min-width: 140px; background: #f4f6f9; border-radius: 8px; padding: 14px 16px; border: 1px solid #e0e4ec; }
-  .metric-card .label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .metric-card .value { font-size: 22px; font-weight: 700; color: #0f3460; }
-  .metric-card .sub { font-size: 11px; color: #888; margin-top: 2px; }
-  .metric-card.red   .value { color: #c62828; }
-  .metric-card.amber .value { color: #e65100; }
-  .metric-card.green .value { color: #2e7d32; }
-  .metric-card.blue  .value { color: #1565c0; }
+.faq-item{background:#f4f6f9;border-radius:7px;padding:11px 14px;margin:8px 0}
+.faq-q{font-weight:700;color:#1a1a2e;font-size:12.5px;margin-bottom:4px}
+.faq-q::before{content:"Q: ";color:#1565c0}
+.faq-a{font-size:12px;color:#444;line-height:1.6;padding-left:14px;border-left:2px solid #1565c0}
+.faq-a::before{content:"A: ";color:#1565c0;font-weight:700}
 
-  /* ── Progress bar ── */
-  .pbar-wrap { background: #e8ecf1; border-radius: 4px; height: 12px; overflow: hidden; margin: 3px 0; }
-  .pbar { height: 100%; border-radius: 4px; }
-  .pbar-red   { background: #e53935; }
-  .pbar-amber { background: #fb8c00; }
-  .pbar-green { background: #43a047; }
+.roadmap{display:flex;gap:8px;overflow-x:auto;padding:6px 0;margin:10px 0}
+.roadmap-step{flex:1;min-width:170px;background:#fff;border:2px solid #0f3460;border-radius:8px;padding:12px;position:relative;font-size:12px}
+.roadmap-step .rs-num{position:absolute;top:-10px;left:12px;background:#0f3460;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.roadmap-step h6{margin:6px 0 6px;color:#0f3460;font-size:12.5px}
+.roadmap-step .rs-owner{font-size:10.5px;color:#888;font-style:italic}
 
-  /* ── Step boxes ── */
-  .step-box { border: 1px solid #dde3ee; border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
-  .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .step-badge { background: #0f3460; color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
-  .step-title { font-weight: 700; font-size: 13.5px; color: #1a1a2e; }
-  .step-formula { background: #f4f6f9; border-radius: 6px; padding: 8px 14px; font-family: monospace; font-size: 12.5px; color: #0f3460; margin: 8px 0; }
-
-  /* ── Bucket section ── */
-  .bucket-header { background: linear-gradient(90deg, #0f3460, #16213e); color: #fff; border-radius: 7px; padding: 12px 18px; margin: 20px 0 12px; display: flex; justify-content: space-between; align-items: center; }
-  .bucket-header .bname { font-size: 15px; font-weight: 700; }
-  .bucket-header .bmeta { font-size: 12px; color: #a8c0e0; }
-
-  /* ── Summary comparison table ── */
-  .highlight-cell { background: #fffde7; font-weight: 700; }
-  .rec-box { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border: 2px solid #2e7d32; border-radius: 10px; padding: 20px 24px; margin: 18px 0; }
-  .rec-box h3 { color: #1b5e20; font-size: 14px; margin-bottom: 12px; }
-  .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 12px; }
-  .rec-item { background: #fff; border-radius: 8px; padding: 14px; border: 1px solid #a5d6a7; text-align: center; }
-  .rec-item .rlabel { font-size: 11px; color: #555; margin-bottom: 4px; }
-  .rec-item .rval { font-size: 24px; font-weight: 800; color: #1b5e20; }
-  .rec-item .rsub { font-size: 11px; color: #777; margin-top: 4px; }
-
-  /* ── Open points ── */
-  .open-point { background: #fff8e1; border: 1px solid #ffca28; border-radius: 7px; padding: 14px 18px; margin: 10px 0; }
-  .open-point .op-title { font-weight: 700; color: #e65100; margin-bottom: 6px; font-size: 13px; }
-
-  /* ── Footer ── */
-  .footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; }
-
-  .divider { border: none; border-top: 1px solid #e8ecf1; margin: 18px 0; }
-  ul.obs-list { padding-left: 20px; }
-  ul.obs-list li { margin-bottom: 6px; line-height: 1.6; }
-  .arrow-down { color: #2e7d32; font-weight: 700; }
-  .arrow-up   { color: #c62828; font-weight: 700; }
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.kpi-tile{background:linear-gradient(135deg,#fff,#f4f6f9);border:1px solid #dde3ee;border-radius:8px;padding:12px 14px;text-align:center}
+.kpi-tile .kt-v{font-size:24px;font-weight:800;color:#0f3460;margin:4px 0}
+.kpi-tile .kt-l{font-size:10.5px;color:#666;text-transform:uppercase;letter-spacing:0.4px}
+.kpi-tile.r .kt-v{color:#c62828}
+.kpi-tile.g .kt-v{color:#2e7d32}
+.kpi-tile.a .kt-v{color:#e65100}
 </style>
 </head>
 <body>
 <div class="page">
 
-<!-- ══════════════════════════════════════════════════════ HEADER ══ -->
 <div class="report-header">
   <h1>TLTV Reduction Analysis — Cars24 NBFC</h1>
-  <div class="subtitle">Problem: Bajaj co-lending requires TLTV ≤ 100% | Dataset: Internal Disbursals Only</div>
+  <div class="subtitle">Problem: Bajaj co-lending requires TLTV ≤ 100% | Dataset: C2C Channel Internal Disbursals</div>
   <div class="meta-chips">
     <span class="chip">📅 Jan – Apr 2026</span>
-    <span class="chip">📊 7,898 Loans Analysed</span>
-    <span class="chip">🏦 Internal Disbursals</span>
+    <span class="chip">📊 7,898 Loans</span>
+    <span class="chip">🏦 C2C Channel</span>
     <span class="chip">📋 Policy: RBv6</span>
-    <span class="chip">🔢 DS1 Max Values Used</span>
+    <span class="chip">⚠ D2C / DCF: Pending</span>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ CONTEXT ══ -->
+<!-- TAB NAVIGATION -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showTab(0,this)"><span class="tab-num">0</span>Summary</button>
+  <button class="tab-btn" onclick="showTab(1,this)"><span class="tab-num">1</span>Data Analysis</button>
+  <button class="tab-btn" onclick="showTab(2,this)"><span class="tab-num">2</span>Policy TLTV</button>
+  <button class="tab-btn" onclick="showTab(3,this)"><span class="tab-num">3</span>GS Valuation</button>
+  <button class="tab-btn" onclick="showTab(4,this)"><span class="tab-num">4</span>Customer Comms</button>
+  <button class="tab-btn" onclick="showTab(5,this)"><span class="tab-num">5</span>Field Training</button>
+</div>
+
+<!-- ════════════════════════════ TAB 0: EXECUTIVE SUMMARY ════════════════════════════ -->
+<div class="tab-content active" id="tab0">
+
+<div class="section">
+  <div class="section-title">Executive Summary — Two Approaches at a Glance</div>
+  <div class="callout callout-blue">
+    <strong>Problem:</strong> 68.8% of internal disbursals breach 100% TLTV → not eligible for Bajaj co-lending (target 80–90% co-lending share).<br>
+    <strong>Solution:</strong> Inflate the denominator by multiplier M. GS team to provide Low/Medium/High valuation. Policy anchors on Medium. Customer loan amount unchanged.
+  </div>
+
+  <div class="section-sub">Headline Numbers</div>
+  <div class="kpi-grid">
+    <div class="kpi-tile r"><div class="kt-l">Today's Breach</div><div class="kt-v">68.8%</div><div class="kt-l">5,433 / 7,898 loans</div></div>
+    <div class="kpi-tile a"><div class="kt-l">After Car VAS</div><div class="kt-v">36.8%</div><div class="kt-l">Step 2 residual</div></div>
+    <div class="kpi-tile g"><div class="kt-l">After All VAS</div><div class="kt-v">9.6%</div><div class="kt-l">Step 3 residual</div></div>
+    <div class="kpi-tile"><div class="kt-l">P99 TLTV</div><div class="kt-v">119.3%</div><div class="kt-l">99th percentile</div></div>
+    <div class="kpi-tile"><div class="kt-l">Max TLTV</div><div class="kt-v">127.7%</div><div class="kt-l">Single max</div></div>
+  </div>
+
+  <div class="section-sub">Approach A vs Approach B — Side-by-Side</div>
+  <div class="compare-grid">
+    <div class="compare-card current">
+      <h4>Approach A: Aggregate (Single Pool)</h4>
+      <table style="margin-top:0">
+        <tr><td><strong>Method</strong></td><td>All 7,898 loans treated as one pool. Per-loan DS1 actuals applied.</td></tr>
+        <tr><td><strong>VAS-Implied M</strong></td><td><strong>1.345x</strong> (34.46% of median ASP ₹4.51L)</td></tr>
+        <tr><td><strong>Data-Driven M @ P99</strong></td><td><strong>1.193x</strong></td></tr>
+        <tr><td><strong>Step 1 → 3 trajectory</strong></td><td>68.8% → 36.8% → 9.6%</td></tr>
+        <tr><td><strong>Pros</strong></td><td>Simple, one M for whole portfolio</td></tr>
+        <tr><td><strong>Cons</strong></td><td>Masks bucket-level variation</td></tr>
+      </table>
+    </div>
+    <div class="compare-card proposed">
+      <h4>Approach B: ASP Bucket-Level (6 Buckets)</h4>
+      <table style="margin-top:0">
+        <tr><td><strong>Method</strong></td><td>Per-bucket VAS% of median ASP applied uniformly</td></tr>
+        <tr><td><strong>VAS-Implied M (max)</strong></td><td><strong>1.349x</strong> (binding: &lt;3L bucket)</td></tr>
+        <tr><td><strong>VAS-Implied M (weighted)</strong></td><td><strong>1.269x</strong></td></tr>
+        <tr><td><strong>Data-Driven M @ P99 (max)</strong></td><td><strong>1.195x</strong> (binding: 3–4.5L bucket)</td></tr>
+        <tr><td><strong>Data-Driven M @ P99 (weighted)</strong></td><td><strong>1.187x</strong></td></tr>
+        <tr><td><strong>Pros</strong></td><td>Reveals bucket dynamics; supports differentiated M if needed</td></tr>
+        <tr><td><strong>Cons</strong></td><td>More complex; binding bucket dictates flat M</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-sub">Four Multiplier Candidates</div>
+  <table>
+    <thead><tr><th>#</th><th>Approach</th><th class="center">Multiplier</th><th>Coverage</th><th>Use Case</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>VAS-Implied Max (theoretical ceiling)</td><td class="center">1.349x</td><td>Covers 100% if all VAS hit DS1 max simultaneously</td><td>Future-proofing extreme</td></tr>
+      <tr><td>2</td><td>VAS-Implied Weighted</td><td class="center">1.269x</td><td>Portfolio-weighted theoretical</td><td>Forward-looking</td></tr>
+      <tr style="background:#e8f5e9"><td>3</td><td><strong>Data-Driven Max @P99</strong></td><td class="center"><strong>1.195x → 1.20x</strong></td><td><strong>Covers 99% of actual disbursals</strong></td><td><strong>★ Recommended</strong></td></tr>
+      <tr><td>4</td><td>Data-Driven Weighted @P99</td><td class="center">1.187x</td><td>Weighted by portfolio</td><td>Empirical floor</td></tr>
+    </tbody>
+  </table>
+
+  <div class="rec-box">
+    <h3>★ Recommended Multiplier Set</h3>
+    <div class="rec-grid">
+      <div class="rec-item"><div class="rlabel">Low (Listing Price)</div><div class="rval" style="color:#555">1.000x</div><div class="rsub">As-is</div></div>
+      <div class="rec-item"><div class="rlabel">Medium (TLTV Anchor)</div><div class="rval">1.20x</div><div class="rsub">Covers 99% — clean round number</div></div>
+      <div class="rec-item"><div class="rlabel">High (Ceiling)</div><div class="rval">1.25x</div><div class="rsub">5% buffer; ~99.8% coverage</div></div>
+    </div>
+  </div>
+
+  <div class="section-sub">End-to-End Implementation Roadmap</div>
+  <div class="roadmap">
+    <div class="roadmap-step"><div class="rs-num">1</div><h6>Policy Amendment</h6>TLTV cap reduced by 1.20×. Risk & Compliance sign-off.<div class="rs-owner">Owner: Credit Policy</div></div>
+    <div class="roadmap-step"><div class="rs-num">2</div><h6>GS Valuation Format</h6>Saarathi to display Low/Medium/High. DS team updates model.<div class="rs-owner">Owner: GS + Tech</div></div>
+    <div class="roadmap-step"><div class="rs-num">3</div><h6>System Integration</h6>Policy engine uses Medium as denominator. Bajaj API payload updated.<div class="rs-owner">Owner: NBFC Tech</div></div>
+    <div class="roadmap-step"><div class="rs-num">4</div><h6>Customer Comms</h6>Email + app updates. No customer-visible reduction in offer.<div class="rs-owner">Owner: Product + Marketing</div></div>
+    <div class="roadmap-step"><div class="rs-num">5</div><h6>Field Training</h6>Sales + Ops trained on new flow + FAQs.<div class="rs-owner">Owner: L&amp;D + Ops</div></div>
+    <div class="roadmap-step"><div class="rs-num">6</div><h6>D2C/DCF Validation</h6>Replicate analysis on other channels.<div class="rs-owner">Owner: Analytics</div></div>
+  </div>
+
+  <div class="callout callout-amber">
+    <strong>Scope note:</strong> This analysis covers <strong>C2C channel only</strong>. D2C and DCF channels must be validated separately before applying a portfolio-wide multiplier. The recommended 1.20x is C2C-derived — channel-specific multipliers may be warranted.
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════ TAB 1: DETAILED DATA ANALYSIS ════════════════════════════ -->
+<div class="tab-content" id="tab1">
+
 <div class="section">
   <div class="section-title">Background &amp; Problem Context</div>
   <div class="callout callout-blue">
     <strong>What is TLTV?</strong> Total Loan-to-Value = Total Loan Sanction / Listing Price of the Car.<br>
-    Total Loan Sanction = Car Loan (on listing price) + Car VAS Loan (GPS + MI + RTO + EWC) + Loan VAS (Protekt Pro + PF + Documentation).<br>
-    Because VAS amounts sit in the numerator but the denominator is only the listing price, TLTV structurally exceeds 100% for most loans.
+    Total Loan Sanction = Car Loan (on listing price) + Car VAS Loan (GPS + MI + RTO + EWC) + Loan VAS (Protekt Pro + PF + Documentation).
   </div>
   <div class="callout callout-red">
-    <strong>The Problem:</strong> Bajaj Finance — Cars24's co-lending partner (currently ~50% of disbursals, target 80–90%) — has decided it will <strong>not fund any loan where TLTV &gt; 100%</strong> following internal RBI discussions. With ~68.8% of disbursals currently breaching 100% TLTV, the co-lending scale-up plan is at risk.
+    <strong>The Problem:</strong> Bajaj Finance (Cars24's co-lending partner, ~50% of disbursals, target 80–90%) will <strong>not fund any loan where TLTV &gt; 100%</strong> following internal RBI discussions. With ~68.8% of disbursals breaching 100%, the co-lending scale-up plan is at risk.
   </div>
   <div class="callout callout-green">
-    <strong>Proposed Solution (Denominator Engineering):</strong> Inflate the denominator (listing price) by a multiplier M. The GS (car sales) team provides three asset values in the valuation report — Low (current listing price), Medium (Low × M), High (Low × M × buffer). Policy anchors on Medium for underwriting. <strong>The customer's loan amount does not change.</strong> TLTV cap is reduced by the same multiplier so the sanctioned amount remains identical.<br><br>
-    <strong>Example:</strong> Listing Price = ₹3,00,000 | Current TLTV cap = 110% → Max loan = ₹3,30,000 | Medium value (M=1.20) = ₹3,60,000 | New TLTV cap = 110%/1.20 = 91.67% | New max loan = 91.67% × ₹3,60,000 = ₹3,30,000 ✓ (unchanged)
+    <strong>Proposed Solution:</strong> Inflate the denominator (listing price) by multiplier M. GS team provides Low (current LP), Medium (Low × M), High (Low × M × buffer). Policy anchors on Medium. <strong>Customer's loan amount does not change.</strong> TLTV cap is reduced by the same multiplier so the sanctioned amount remains identical.<br>
+    <strong>Proof:</strong> LP=₹3L, old cap 110% → max loan ₹3.30L | Medium=₹3.60L, new cap 91.67% → max loan ₹3.30L ✓
   </div>
-
   <div class="section-sub">VAS Classification</div>
-  <div style="display:flex;gap:20px;flex-wrap:wrap;">
-    <div style="flex:1;min-width:220px;">
-      <table>
-        <thead><tr><th>Car VAS</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><span class="tag-car">GPS Cost</span></td><td>GPS tracking device — flat fee</td></tr>
-          <tr><td><span class="tag-car">Motor Insurance</span></td><td>Vehicle insurance premium</td></tr>
-          <tr><td><span class="tag-car">RTO Charge</span></td><td>Road transport office fee</td></tr>
-          <tr><td><span class="tag-car">EWC</span></td><td>Extended Warranty Charge</td></tr>
-        </tbody>
-      </table>
+  <div style="display:flex;gap:18px;flex-wrap:wrap">
+    <div style="flex:1;min-width:220px">
+      <table><thead><tr><th>Car VAS</th><th>Description</th></tr></thead><tbody>
+        <tr><td><span class="tag-car">GPS Cost</span></td><td>GPS tracking — flat ₹6,999</td></tr>
+        <tr><td><span class="tag-car">Motor Insurance</span></td><td>Vehicle insurance premium</td></tr>
+        <tr><td><span class="tag-car">RTO Charge</span></td><td>Road transport fee</td></tr>
+        <tr><td><span class="tag-car">EWC</span></td><td>Extended Warranty</td></tr>
+      </tbody></table>
     </div>
-    <div style="flex:1;min-width:220px;">
-      <table>
-        <thead><tr><th>Loan VAS</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><span class="tag-loan">Protekt Pro</span></td><td>Loan protection / buyback insurance</td></tr>
-          <tr><td><span class="tag-loan">Processing Fee</span></td><td>Loan origination fee</td></tr>
-          <tr><td><span class="tag-loan">Documentation</span></td><td>Document handling — flat fee</td></tr>
-        </tbody>
-      </table>
+    <div style="flex:1;min-width:220px">
+      <table><thead><tr><th>Loan VAS</th><th>Description</th></tr></thead><tbody>
+        <tr><td><span class="tag-loan">Protekt Pro</span></td><td>Loan protection / buyback</td></tr>
+        <tr><td><span class="tag-loan">Processing Fee</span></td><td>Loan origination</td></tr>
+        <tr><td><span class="tag-loan">Documentation</span></td><td>Flat ₹1,650</td></tr>
+      </tbody></table>
     </div>
   </div>
-
-  <div class="callout callout-amber" style="margin-top:14px;">
-    <strong>Data Note:</strong> 7,979 raw records. 81 excluded due to null Listing Price or Loan Sanction. <strong>7,898 loans used in all calculations.</strong> DS1 values represent the maximum system-generated VAS amount per loan. Null DS1 values treated as ₹0 (VAS not applicable for that loan). For each VAS component, the maximum value is used unless Max &gt; 2× P95, in which case P95 is used to avoid outlier distortion.
+  <div class="callout callout-amber">
+    <strong>Data Note:</strong> 7,979 raw records; 81 excluded (null LP or TLS); <strong>7,898 used</strong>. DS1 = max system-generated VAS per loan. Outlier rule: max used unless max &gt; 2×P95, then P95.
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PART 1: AGGREGATE ══ -->
 <div class="section">
-  <div class="section-title">Part 1 — Aggregate Analysis (All Buckets Combined)</div>
-  <p style="color:#555;font-size:13px;margin-bottom:16px;">This section analyses all 7,898 disbursals as a single pool. VAS components are expressed as % of the overall median ASP (₹4,51,000). Each step adds more VAS to the denominator and tracks how many loans still breach 100% TLTV.</p>
+  <div class="section-title">Part 1 — Aggregate Analysis</div>
+  <p style="color:#555;font-size:13px;margin-bottom:14px">All 7,898 loans as single pool. Per-loan DS1 actuals used in denominator. Median ASP = ₹4,51,000.</p>
 
-  <!-- STEP 1 -->
   <div class="step-box">
-    <div class="step-header">
-      <div class="step-badge">1</div>
-      <div class="step-title">Baseline TLTV — No VAS Adjustment to Denominator</div>
-    </div>
+    <div class="step-header"><div class="step-badge">1</div><div class="step-title">Baseline — No VAS in Denominator</div></div>
     <div class="step-formula">TLTV = Total Loan Sanction / Listing Price</div>
-    <p style="font-size:12.5px;color:#555;margin-bottom:12px;">This is today's position. No VAS is recognised in the denominator. The listing price of the car is the only denominator.</p>
-
     <div class="metric-row">
-      <div class="metric-card red">
-        <div class="label">Loans &gt; 100% TLTV</div>
-        <div class="value">68.8%</div>
-        <div class="sub">5,433 of 7,898 loans</div>
-      </div>
-      <div class="metric-card blue">
-        <div class="label">Loans ≤ 100% TLTV</div>
-        <div class="value">31.2%</div>
-        <div class="sub">2,465 loans — co-lending eligible today</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Median TLTV</div>
-        <div class="value">107.6%</div>
-        <div class="sub">Median already exceeds 100%</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">P99 TLTV</div>
-        <div class="value">119.3%</div>
-        <div class="sub">99th percentile</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Max TLTV</div>
-        <div class="value">127.7%</div>
-        <div class="sub">Single worst case</div>
-      </div>
+      <div class="metric-card red"><div class="label">Loans &gt; 100%</div><div class="value">68.8%</div><div class="sub">5,433 / 7,898</div></div>
+      <div class="metric-card blue"><div class="label">Loans ≤ 100%</div><div class="value">31.2%</div><div class="sub">2,465 eligible today</div></div>
+      <div class="metric-card"><div class="label">Median TLTV</div><div class="value">107.6%</div></div>
+      <div class="metric-card"><div class="label">P99 TLTV</div><div class="value">119.3%</div></div>
+      <div class="metric-card"><div class="label">Max TLTV</div><div class="value">127.7%</div></div>
     </div>
-
-    <table style="margin-top:12px;">
-      <thead><tr><th>Percentile</th><th class="center">P50</th><th class="center">P75</th><th class="center">P90</th><th class="center">P95</th><th class="center">P99</th><th class="center">Max</th></tr></thead>
-      <tbody>
-        <tr><td>TLTV Value</td><td class="center">107.6%</td><td class="center">114.1%</td><td class="center">117.8%</td><td class="center">118.4%</td><td class="center">119.3%</td><td class="center">127.7%</td></tr>
-      </tbody>
-    </table>
-
-    <div class="callout callout-red" style="margin-top:12px;">
-      <strong>★ Key Observation:</strong> 68.8% of all internal disbursals exceed 100% TLTV and are currently ineligible for Bajaj co-lending. The distribution is tight (P95 to P99 spans just 0.9 ppts — 118.4% to 119.3%), confirming the breach is <strong>structural</strong> (driven by VAS in numerator), not by isolated high-LTV outliers. The jump from P99 (119.3%) to Max (127.7%) — a gap of 8.4 ppts — suggests the very top cases are true outliers worth investigating separately.
-    </div>
+    <table><thead><tr><th>Percentile</th><th class="center">P50</th><th class="center">P75</th><th class="center">P90</th><th class="center">P95</th><th class="center">P99</th><th class="center">Max</th></tr></thead>
+      <tbody><tr><td>TLTV</td><td class="center">107.6%</td><td class="center">114.1%</td><td class="center">117.8%</td><td class="center">118.4%</td><td class="center">119.3%</td><td class="center">127.7%</td></tr></tbody></table>
+    <div class="callout callout-red"><strong>Observation:</strong> Distribution is tight (P95–P99 gap = 0.9pp). Breach is structural (VAS-driven), not outlier-driven. Jump P99→Max (8.4pp) shows a small genuine outlier tail.</div>
   </div>
 
-  <!-- STEP 2 -->
   <div class="step-box">
-    <div class="step-header">
-      <div class="step-badge">2</div>
-      <div class="step-title">TLTV after Car VAS Added to Denominator</div>
-    </div>
-    <div class="step-formula">New Denominator = Listing Price + GPS Cost + Motor Insurance + RTO Charge + EWC (per-loan DS1 values; null = ₹0)</div>
-    <p style="font-size:12.5px;color:#555;margin-bottom:12px;">Rationale: Car VAS (GPS, MI, RTO, EWC) are physical costs attached to the car asset and could reasonably be recognised as part of the car's value. Adding them to the denominator reduces TLTV.</p>
-
-    <div class="section-sub">Aggregate Car VAS Components (% of Median ASP ₹4,51,000)</div>
-    <table>
-      <thead>
-        <tr><th>VAS Component</th><th>Category</th><th class="center">Max DS1 Value</th><th class="center">P95 Value</th><th class="center">Value Used</th><th class="center">Basis</th><th class="center">% of Median ASP</th></tr>
-      </thead>
+    <div class="step-header"><div class="step-badge">2</div><div class="step-title">+ Car VAS in Denominator</div></div>
+    <div class="step-formula">Denominator = LP + GPS + MI + RTO + EWC (per-loan DS1)</div>
+    <table><thead><tr><th>VAS</th><th>Category</th><th class="center">Max DS1</th><th class="center">P95</th><th class="center">Used</th><th class="center">Basis</th><th class="center">% Median ASP</th></tr></thead>
       <tbody>
-        <tr>
-          <td>GPS Cost</td><td><span class="tag-car">Car VAS</span></td>
-          <td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td>
-          <td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.55%</strong></td>
-        </tr>
-        <tr>
-          <td>Motor Insurance</td><td><span class="tag-car">Car VAS</span></td>
-          <td class="center">₹74,745</td><td class="center">₹24,109</td><td class="center">₹24,109</td>
-          <td class="center"><span class="note-pill">P95 — outlier</span></td><td class="center"><strong>5.35%</strong></td>
-        </tr>
-        <tr>
-          <td>RTO Charge</td><td><span class="tag-car">Car VAS</span></td>
-          <td class="center">₹84,725</td><td class="center">₹19,042</td><td class="center">₹19,042</td>
-          <td class="center"><span class="note-pill">P95 — outlier</span></td><td class="center"><strong>4.22%</strong></td>
-        </tr>
-        <tr>
-          <td>EWC</td><td><span class="tag-car">Car VAS</span></td>
-          <td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center">₹31,860</td>
-          <td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>7.06%</strong></td>
-        </tr>
-        <tr class="sub-total">
-          <td colspan="6"><strong>Total Car VAS</strong></td>
-          <td class="center"><strong>18.18%</strong></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="metric-row" style="margin-top:14px;">
-      <div class="metric-card amber">
-        <div class="label">Loans &gt; 100% TLTV</div>
-        <div class="value">36.8%</div>
-        <div class="sub">2,908 of 7,898 loans</div>
-      </div>
-      <div class="metric-card green">
-        <div class="label">Improvement vs Step 1</div>
-        <div class="value">↓ 32.0pp</div>
-        <div class="sub">2,525 loans resolved by Car VAS</div>
-      </div>
+        <tr><td>GPS Cost</td><td><span class="tag-car">Car</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.55%</strong></td></tr>
+        <tr><td>Motor Insurance</td><td><span class="tag-car">Car</span></td><td class="center">₹74,745</td><td class="center">₹24,109</td><td class="center">₹24,109</td><td class="center"><span class="note-pill">P95</span></td><td class="center"><strong>5.35%</strong></td></tr>
+        <tr><td>RTO Charge</td><td><span class="tag-car">Car</span></td><td class="center">₹84,725</td><td class="center">₹19,042</td><td class="center">₹19,042</td><td class="center"><span class="note-pill">P95</span></td><td class="center"><strong>4.22%</strong></td></tr>
+        <tr><td>EWC</td><td><span class="tag-car">Car</span></td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>7.06%</strong></td></tr>
+        <tr class="sub-total"><td colspan="6"><strong>Total Car VAS</strong></td><td class="center"><strong>18.18%</strong></td></tr>
+      </tbody></table>
+    <div class="metric-row" style="margin-top:12px">
+      <div class="metric-card amber"><div class="label">Loans &gt; 100%</div><div class="value">36.8%</div><div class="sub">2,908 loans</div></div>
+      <div class="metric-card green"><div class="label">Improvement</div><div class="value">↓ 32.0pp</div><div class="sub">2,525 resolved by Car VAS</div></div>
     </div>
-
-    <div class="callout callout-amber">
-      <strong>★ Key Observation:</strong> Adding Car VAS to the denominator nearly halves the breach rate — from 68.8% to 36.8%, a 32 ppt improvement. Car VAS alone resolves ~32% of all disbursals. However, 36.8% still remain in breach, confirming that Loan VAS must also be incorporated to close the gap meaningfully.
-    </div>
+    <div class="callout callout-amber"><strong>Observation:</strong> Car VAS halves the breach rate. Loan VAS still needed to close the gap.</div>
   </div>
 
-  <!-- STEP 3 -->
   <div class="step-box">
-    <div class="step-header">
-      <div class="step-badge">3</div>
-      <div class="step-title">TLTV after All VAS (Car + Loan) Added to Denominator</div>
-    </div>
-    <div class="step-formula">New Denominator = Listing Price + Car VAS (GPS+MI+RTO+EWC) + Loan VAS (Protekt Pro+PF+Doc) — per-loan DS1 values</div>
-
-    <div class="section-sub">Aggregate Loan VAS Components (% of Median ASP ₹4,51,000)</div>
-    <table>
-      <thead>
-        <tr><th>VAS Component</th><th>Category</th><th class="center">Max DS1 Value</th><th class="center">P95 Value</th><th class="center">Value Used</th><th class="center">Basis</th><th class="center">% of Median ASP</th></tr>
-      </thead>
+    <div class="step-header"><div class="step-badge">3</div><div class="step-title">+ All VAS (Car + Loan) in Denominator</div></div>
+    <table><thead><tr><th>VAS</th><th>Category</th><th class="center">Max DS1</th><th class="center">P95</th><th class="center">Used</th><th class="center">Basis</th><th class="center">% Median ASP</th></tr></thead>
       <tbody>
-        <tr>
-          <td>Protekt Pro</td><td><span class="tag-loan">Loan VAS</span></td>
-          <td class="center">₹54,065</td><td class="center">₹30,685</td><td class="center">₹54,065</td>
-          <td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>11.99%</strong></td>
-        </tr>
-        <tr>
-          <td>Processing Fee</td><td><span class="tag-loan">Loan VAS</span></td>
-          <td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td>
-          <td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.92%</strong></td>
-        </tr>
-        <tr>
-          <td>Documentation</td><td><span class="tag-loan">Loan VAS</span></td>
-          <td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td>
-          <td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.37%</strong></td>
-        </tr>
-        <tr class="sub-total">
-          <td colspan="6"><strong>Total Loan VAS</strong></td>
-          <td class="center"><strong>16.28%</strong></td>
-        </tr>
-        <tr class="total-row">
-          <td colspan="6"><strong>Total VAS (Car + Loan)</strong></td>
-          <td class="center"><strong>34.46%</strong></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="metric-row" style="margin-top:14px;">
-      <div class="metric-card green">
-        <div class="label">Loans &gt; 100% TLTV</div>
-        <div class="value">9.6%</div>
-        <div class="sub">757 of 7,898 loans</div>
-      </div>
-      <div class="metric-card green">
-        <div class="label">Improvement vs Step 1</div>
-        <div class="value">↓ 59.2pp</div>
-        <div class="sub">4,676 loans resolved by all VAS</div>
-      </div>
-      <div class="metric-card blue">
-        <div class="label">Improvement vs Step 2</div>
-        <div class="value">↓ 27.2pp</div>
-        <div class="sub">2,151 additional loans resolved by Loan VAS</div>
-      </div>
+        <tr><td>Protekt Pro</td><td><span class="tag-loan">Loan</span></td><td class="center">₹54,065</td><td class="center">₹30,685</td><td class="center">₹54,065</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>11.99%</strong></td></tr>
+        <tr><td>Processing Fee</td><td><span class="tag-loan">Loan</span></td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.92%</strong></td></tr>
+        <tr><td>Documentation</td><td><span class="tag-loan">Loan</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.37%</strong></td></tr>
+        <tr class="sub-total"><td colspan="6"><strong>Total Loan VAS</strong></td><td class="center"><strong>16.28%</strong></td></tr>
+        <tr class="total-row"><td colspan="6"><strong>Total VAS (Car + Loan)</strong></td><td class="center"><strong>34.46%</strong></td></tr>
+      </tbody></table>
+    <div class="metric-row" style="margin-top:12px">
+      <div class="metric-card green"><div class="label">Loans &gt; 100%</div><div class="value">9.6%</div><div class="sub">757 loans</div></div>
+      <div class="metric-card green"><div class="label">vs Step 1</div><div class="value">↓ 59.2pp</div></div>
+      <div class="metric-card blue"><div class="label">vs Step 2</div><div class="value">↓ 27.2pp</div></div>
     </div>
-
-    <div class="callout callout-green">
-      <strong>★ Key Observation:</strong> When all VAS is fully absorbed in the denominator, only 9.6% of loans still breach 100% TLTV. These 757 cases are driven by structurally high base LTV on the car itself — not by VAS. The multiplier solution must bridge this final residual gap. This also confirms that the VAS-implied multiplier approach is directionally correct.
-    </div>
+    <div class="callout callout-green"><strong>Observation:</strong> 9.6% residual is structural high-LTV on the car itself — not VAS-driven. Multiplier must bridge this final gap.</div>
   </div>
 
-  <!-- STEP 4 -->
   <div class="step-box">
-    <div class="step-header">
-      <div class="step-badge">4</div>
-      <div class="step-title">Multiplier Derivation — Aggregate</div>
-    </div>
-    <div class="step-formula">M = Listing Price multiplier such that: TLTV_new = TLS / (Listing Price × M) ≤ 100%
-For each loan: minimum M needed = its current TLTV (= TLS / Listing Price)</div>
-    <p style="font-size:12.5px;color:#555;margin-bottom:12px;">The table below shows what multiplier M is required to bring a given % of the portfolio below 100% TLTV. This is derived directly from the TLTV distribution of all 7,898 loans.</p>
-    <table>
-      <thead>
-        <tr><th>Population Covered</th><th class="center">Required M</th><th class="center">Loans Still Breaching</th><th>Observation</th></tr>
-      </thead>
+    <div class="step-header"><div class="step-badge">4</div><div class="step-title">Multiplier Derivation — Aggregate</div></div>
+    <table><thead><tr><th>Coverage</th><th class="center">Required M</th><th class="center">Remaining Breaches</th><th>Note</th></tr></thead>
       <tbody>
-        <tr><td>90.0%</td><td class="center">1.178x</td><td class="center">~790</td><td>Leaves a meaningful tail uncovered</td></tr>
-        <tr><td>95.0%</td><td class="center">1.184x</td><td class="center">~395</td><td>Still ~5% of book at risk</td></tr>
-        <tr><td>98.0%</td><td class="center">1.190x</td><td class="center">~158</td><td>Workable but sub-optimal</td></tr>
-        <tr style="background:#e8f5e9;"><td><strong>99.0%</strong></td><td class="center"><strong>1.193x</strong></td><td class="center"><strong>~79</strong></td><td><strong>← Recommended sweet spot</strong></td></tr>
-        <tr><td>99.5%</td><td class="center">1.195x</td><td class="center">~39</td><td>Marginal uplift vs 99%</td></tr>
-        <tr><td>100.0%</td><td class="center">1.277x</td><td class="center">0</td><td>Outlier-driven; disproportionate inflation</td></tr>
-      </tbody>
-    </table>
-    <div class="callout callout-amber" style="margin-top:12px;">
-      <strong>Aggregate Implied Multiplier from VAS Analysis:</strong> Total VAS = 34.46% of median ASP → Implied M = <strong>1.3446x</strong>. This is the theoretical maximum required if all VAS are funded at their ceiling simultaneously. In practice, actual TLTV never exceeds 1.277x — confirming VAS are not all at DS1 max on any single loan. The practical data-driven M is <strong>1.193x (≈ 1.20x rounded)</strong>.
-    </div>
+        <tr><td>90%</td><td class="center">1.178x</td><td class="center">~790</td><td>Meaningful tail uncovered</td></tr>
+        <tr><td>95%</td><td class="center">1.184x</td><td class="center">~395</td><td>~5% at risk</td></tr>
+        <tr><td>98%</td><td class="center">1.190x</td><td class="center">~158</td><td>Workable</td></tr>
+        <tr style="background:#e8f5e9"><td><strong>99%</strong></td><td class="center"><strong>1.193x</strong></td><td class="center"><strong>~79</strong></td><td><strong>★ Sweet spot</strong></td></tr>
+        <tr><td>99.5%</td><td class="center">1.195x</td><td class="center">~39</td><td>Marginal uplift</td></tr>
+        <tr><td>100%</td><td class="center">1.277x</td><td class="center">0</td><td>Outlier-driven</td></tr>
+      </tbody></table>
+    <div class="callout callout-amber"><strong>Aggregate Implied M = 1.345x</strong> (theoretical ceiling, all VAS at max). <strong>Data-Driven M @ P99 = 1.193x (≈ 1.20x)</strong> — actual portfolio rarely hits VAS ceiling simultaneously.</div>
   </div>
 
-  <!-- Aggregate Progress Summary -->
-  <div class="section-sub">Aggregate Step-by-Step Progression Summary</div>
-  <table>
-    <thead>
-      <tr><th>Step</th><th>Denominator</th><th class="center">Loans &gt; 100%</th><th class="center">% &gt; 100%</th><th class="center">Change</th><th class="center">Visual</th></tr>
-    </thead>
+  <div class="section-sub">Aggregate Step Progression</div>
+  <table><thead><tr><th>Step</th><th>Denominator</th><th class="center">Loans &gt;100%</th><th class="center">%</th><th class="center">Δ</th><th class="center">Visual</th></tr></thead>
     <tbody>
-      <tr>
-        <td><strong>Step 1</strong></td><td>Listing Price only</td>
-        <td class="center">5,433</td><td class="center" style="color:#c62828;font-weight:700;">68.8%</td><td class="center">—</td>
-        <td style="width:180px;"><div class="pbar-wrap"><div class="pbar pbar-red" style="width:68.8%"></div></div></td>
-      </tr>
-      <tr>
-        <td><strong>Step 2</strong></td><td>+ Car VAS (per loan actuals)</td>
-        <td class="center">2,908</td><td class="center" style="color:#e65100;font-weight:700;">36.8%</td><td class="center" style="color:#2e7d32;">↓ 32.0pp</td>
-        <td><div class="pbar-wrap"><div class="pbar pbar-amber" style="width:36.8%"></div></div></td>
-      </tr>
-      <tr>
-        <td><strong>Step 3</strong></td><td>+ All VAS (Car + Loan actuals)</td>
-        <td class="center">757</td><td class="center" style="color:#2e7d32;font-weight:700;">9.6%</td><td class="center" style="color:#2e7d32;">↓ 59.2pp</td>
-        <td><div class="pbar-wrap"><div class="pbar pbar-green" style="width:9.6%"></div></div></td>
-      </tr>
-    </tbody>
-  </table>
+      <tr><td><strong>1</strong></td><td>LP only</td><td class="center">5,433</td><td class="center" style="color:#c62828;font-weight:700">68.8%</td><td class="center">—</td><td style="width:180px"><div class="pbar-wrap"><div class="pbar pbar-red" style="width:68.8%"></div></div></td></tr>
+      <tr><td><strong>2</strong></td><td>+ Car VAS</td><td class="center">2,908</td><td class="center" style="color:#e65100;font-weight:700">36.8%</td><td class="center" style="color:#2e7d32">↓ 32.0pp</td><td><div class="pbar-wrap"><div class="pbar pbar-amber" style="width:36.8%"></div></div></td></tr>
+      <tr><td><strong>3</strong></td><td>+ All VAS</td><td class="center">757</td><td class="center" style="color:#2e7d32;font-weight:700">9.6%</td><td class="center" style="color:#2e7d32">↓ 59.2pp</td><td><div class="pbar-wrap"><div class="pbar pbar-green" style="width:9.6%"></div></div></td></tr>
+    </tbody></table>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PART 2: BUCKET ══ -->
 <div class="section">
   <div class="section-title">Part 2 — ASP Bucket-Level Analysis</div>
   <div class="callout callout-blue">
-    <strong>Methodology:</strong> Loans are split into 6 ASP buckets: &lt;₹3L, ₹3–4.5L, ₹4.5–6L, ₹6–7.5L, ₹7.5–9L, ₹9L+. For each bucket:
-    <ol style="margin:8px 0 0 18px;line-height:1.8;">
-      <li>Compute the <strong>median ASP</strong> of all loans in that bucket (anchor for VAS %)</li>
-      <li>For each VAS component: take Max DS1 value within bucket (P95 if Max &gt; 2×P95)</li>
-      <li>Express each VAS value as <strong>% of that bucket's median ASP</strong> → individual VAS %s</li>
-      <li>Sum → Total Car VAS % and Total Loan VAS % for that bucket</li>
-      <li>Apply these %s uniformly to each loan's listing price as denominator expansion (Step 2, 3)</li>
-      <li>Measure % of loans still &gt;100% TLTV at each step</li>
-    </ol>
-    <br>This approach standardises VAS impact within each bucket and is the basis for the per-bucket multiplier.
+    <strong>Method (Option B):</strong> Per bucket: take Max DS1 (or P95 if Max&gt;2×P95) for each VAS → express as % of bucket's median ASP → apply uniformly to each loan's LP as denominator expansion. Track TLTV breach at each step.
   </div>
 
-  <!-- ── BUCKET <3L ── -->
-  <div class="bucket-header">
-    <div><span class="bname">Bucket 1: &lt; ₹3 Lakhs</span></div>
-    <div class="bmeta">1,509 loans &nbsp;|&nbsp; Median ASP: ₹2,42,000 &nbsp;|&nbsp; 19.1% of total portfolio</div>
-  </div>
+  <div class="bucket-header"><div><span class="bname">Bucket 1: &lt; ₹3 Lakhs</span></div><div class="bmeta">1,509 loans | Median ₹2.42L | 19.1%</div></div>
+  <table><thead><tr><th>VAS</th><th>Cat</th><th class="center">Max</th><th class="center">P95</th><th class="center">Used</th><th class="center">Basis</th><th class="center">% Med ASP</th></tr></thead><tbody>
+    <tr><td>GPS</td><td><span class="tag-car">C</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>2.89%</strong></td></tr>
+    <tr><td>MI</td><td><span class="tag-car">C</span></td><td class="center">₹24,437</td><td class="center">₹12,321</td><td class="center">₹24,437</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>10.10%</strong></td></tr>
+    <tr><td>RTO</td><td><span class="tag-car">C</span></td><td class="center">₹51,797</td><td class="center">₹15,273</td><td class="center">₹15,273</td><td class="center"><span class="note-pill">P95</span></td><td class="center"><strong>6.31%</strong></td></tr>
+    <tr><td>EWC</td><td><span class="tag-car">C</span></td><td class="center">₹14,160</td><td class="center">₹14,160</td><td class="center">₹14,160</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.85%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Car VAS</td><td class="center"><strong>25.15%</strong></td></tr>
+    <tr><td>Protekt Pro</td><td><span class="tag-loan">L</span></td><td class="center">₹11,084</td><td class="center">₹10,535</td><td class="center">₹11,084</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.58%</strong></td></tr>
+    <tr><td>PF</td><td><span class="tag-loan">L</span></td><td class="center">₹10,886</td><td class="center">₹9,829</td><td class="center">₹10,886</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.50%</strong></td></tr>
+    <tr><td>Doc</td><td><span class="tag-loan">L</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.68%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Loan VAS</td><td class="center"><strong>9.76%</strong></td></tr>
+    <tr class="total-row"><td colspan="6">Total VAS</td><td class="center"><strong>34.91%</strong></td></tr>
+  </tbody></table>
+  <div style="margin-top:8px;font-size:12.5px">Implied M = <strong>1.349x</strong> | Req M @P99 = <strong>1.194x</strong> | Max TLTV = <strong>127.7%</strong></div>
+  <table style="margin-top:8px"><thead><tr><th>Step</th><th>Denom</th><th class="center">Loans&gt;100%</th><th class="center">%</th><th class="center">Δ</th></tr></thead><tbody>
+    <tr><td>S1</td><td>LP</td><td class="center">1,131</td><td class="center" style="color:#c62828;font-weight:700">75.0%</td><td class="center">—</td></tr>
+    <tr><td>S2</td><td>LP×1.2515</td><td class="center">1</td><td class="center" style="color:#2e7d32;font-weight:700">0.07%</td><td class="center" style="color:#2e7d32">↓ 74.9pp</td></tr>
+    <tr><td>S3</td><td>LP×1.3491</td><td class="center">0</td><td class="center" style="color:#2e7d32;font-weight:700">0.00%</td><td class="center" style="color:#2e7d32">↓ 75.0pp</td></tr>
+  </tbody></table>
+  <div class="callout callout-amber"><strong>Obs:</strong> Highest breach (75%). MI alone is 10.1% of ASP. Implied M = 1.349x (highest across buckets). Car VAS almost solves bucket alone.</div>
+
+  <div class="bucket-header"><div><span class="bname">Bucket 2: ₹3L – ₹4.5L</span></div><div class="bmeta">2,398 loans | Median ₹3.75L | 30.4% — Largest</div></div>
+  <table><thead><tr><th>VAS</th><th>Cat</th><th class="center">Max</th><th class="center">P95</th><th class="center">Used</th><th class="center">Basis</th><th class="center">% Med ASP</th></tr></thead><tbody>
+    <tr><td>GPS</td><td><span class="tag-car">C</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.87%</strong></td></tr>
+    <tr><td>MI</td><td><span class="tag-car">C</span></td><td class="center">₹31,564</td><td class="center">₹16,440</td><td class="center">₹31,564</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>8.42%</strong></td></tr>
+    <tr><td>RTO</td><td><span class="tag-car">C</span></td><td class="center">₹43,370</td><td class="center">₹17,484</td><td class="center">₹17,484</td><td class="center"><span class="note-pill">P95</span></td><td class="center"><strong>4.66%</strong></td></tr>
+    <tr><td>EWC</td><td><span class="tag-car">C</span></td><td class="center">₹21,240</td><td class="center">₹20,060</td><td class="center">₹21,240</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.66%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Car VAS</td><td class="center"><strong>20.61%</strong></td></tr>
+    <tr><td>Protekt Pro</td><td><span class="tag-loan">L</span></td><td class="center">₹15,936</td><td class="center">₹14,994</td><td class="center">₹15,936</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.25%</strong></td></tr>
+    <tr><td>PF</td><td><span class="tag-loan">L</span></td><td class="center">₹16,413</td><td class="center">₹14,729</td><td class="center">₹16,413</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.38%</strong></td></tr>
+    <tr><td>Doc</td><td><span class="tag-loan">L</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.44%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Loan VAS</td><td class="center"><strong>9.07%</strong></td></tr>
+    <tr class="total-row"><td colspan="6">Total VAS</td><td class="center"><strong>29.68%</strong></td></tr>
+  </tbody></table>
+  <div style="margin-top:8px;font-size:12.5px">Implied M = <strong>1.297x</strong> | Req M @P99 = <strong>1.195x</strong> ★ <em>binding</em> | Max TLTV = <strong>124.3%</strong></div>
+  <table style="margin-top:8px"><thead><tr><th>Step</th><th>Denom</th><th class="center">Loans&gt;100%</th><th class="center">%</th><th class="center">Δ</th></tr></thead><tbody>
+    <tr><td>S1</td><td>LP</td><td class="center">1,674</td><td class="center" style="color:#c62828;font-weight:700">69.8%</td><td class="center">—</td></tr>
+    <tr><td>S2</td><td>LP×1.2061</td><td class="center">8</td><td class="center" style="color:#2e7d32;font-weight:700">0.33%</td><td class="center" style="color:#2e7d32">↓ 69.5pp</td></tr>
+    <tr><td>S3</td><td>LP×1.2968</td><td class="center">0</td><td class="center" style="color:#2e7d32;font-weight:700">0.00%</td><td class="center" style="color:#2e7d32">↓ 69.8pp</td></tr>
+  </tbody></table>
+  <div class="callout callout-green"><strong>Obs:</strong> Largest bucket. Drives the consolidated multiplier (P99 1.195x is the binding constraint).</div>
+
+  <div class="bucket-header"><div><span class="bname">Bucket 3: ₹4.5L – ₹6L</span></div><div class="bmeta">1,817 loans | Median ₹5.15L | 23.0%</div></div>
+  <table><thead><tr><th>VAS</th><th>Cat</th><th class="center">Max</th><th class="center">P95</th><th class="center">Used</th><th class="center">Basis</th><th class="center">% Med ASP</th></tr></thead><tbody>
+    <tr><td>GPS</td><td><span class="tag-car">C</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.36%</strong></td></tr>
+    <tr><td>MI</td><td><span class="tag-car">C</span></td><td class="center">₹35,322</td><td class="center">₹21,166</td><td class="center">₹35,322</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>6.86%</strong></td></tr>
+    <tr><td>RTO</td><td><span class="tag-car">C</span></td><td class="center">₹73,111</td><td class="center">₹19,216</td><td class="center">₹19,216</td><td class="center"><span class="note-pill">P95</span></td><td class="center"><strong>3.73%</strong></td></tr>
+    <tr><td>EWC</td><td><span class="tag-car">C</span></td><td class="center">₹28,320</td><td class="center">₹27,140</td><td class="center">₹28,320</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.50%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Car VAS</td><td class="center"><strong>17.45%</strong></td></tr>
+    <tr><td>Protekt Pro</td><td><span class="tag-loan">L</span></td><td class="center">₹20,510</td><td class="center">₹19,521</td><td class="center">₹20,510</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.98%</strong></td></tr>
+    <tr><td>PF</td><td><span class="tag-loan">L</span></td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.44%</strong></td></tr>
+    <tr><td>Doc</td><td><span class="tag-loan">L</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.32%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Loan VAS</td><td class="center"><strong>7.74%</strong></td></tr>
+    <tr class="total-row"><td colspan="6">Total VAS</td><td class="center"><strong>25.19%</strong></td></tr>
+  </tbody></table>
+  <div style="margin-top:8px;font-size:12.5px">Implied M = <strong>1.252x</strong> | Req M @P99 = <strong>1.188x</strong> | Max TLTV = <strong>127.3%</strong></div>
+  <table style="margin-top:8px"><thead><tr><th>Step</th><th>Denom</th><th class="center">Loans&gt;100%</th><th class="center">%</th><th class="center">Δ</th></tr></thead><tbody>
+    <tr><td>S1</td><td>LP</td><td class="center">1,264</td><td class="center" style="color:#c62828;font-weight:700">69.6%</td><td class="center">—</td></tr>
+    <tr><td>S2</td><td>LP×1.1745</td><td class="center">177</td><td class="center" style="color:#e65100;font-weight:700">9.74%</td><td class="center" style="color:#2e7d32">↓ 59.9pp</td></tr>
+    <tr><td>S3</td><td>LP×1.2519</td><td class="center">1</td><td class="center" style="color:#2e7d32;font-weight:700">0.06%</td><td class="center" style="color:#2e7d32">↓ 69.5pp</td></tr>
+  </tbody></table>
+  <div class="callout callout-amber"><strong>Obs:</strong> Fixed-fee VAS shrink as % of ASP rises. Loan VAS critical here — bridges 9.74% to 0.06%.</div>
+
+  <div class="bucket-header"><div><span class="bname">Bucket 4: ₹6L – ₹7.5L</span></div><div class="bmeta">1,045 loans | Median ₹6.61L | 13.2%</div></div>
+  <table><thead><tr><th>VAS</th><th>Cat</th><th class="center">Max</th><th class="center">P95</th><th class="center">Used</th><th class="center">Basis</th><th class="center">% Med ASP</th></tr></thead><tbody>
+    <tr><td>GPS</td><td><span class="tag-car">C</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.06%</strong></td></tr>
+    <tr><td>MI</td><td><span class="tag-car">C</span></td><td class="center">₹53,692</td><td class="center">₹26,193</td><td class="center">₹26,193</td><td class="center"><span class="note-pill">P95</span></td><td class="center"><strong>3.96%</strong></td></tr>
+    <tr><td>RTO</td><td><span class="tag-car">C</span></td><td class="center">₹84,725</td><td class="center">₹20,062</td><td class="center">₹20,062</td><td class="center"><span class="note-pill">P95</span></td><td class="center"><strong>3.04%</strong></td></tr>
+    <tr><td>EWC</td><td><span class="tag-car">C</span></td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.82%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Car VAS</td><td class="center"><strong>12.88%</strong></td></tr>
+    <tr><td>Protekt Pro</td><td><span class="tag-loan">L</span></td><td class="center">₹25,970</td><td class="center">₹23,900</td><td class="center">₹25,970</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.93%</strong></td></tr>
+    <tr><td>PF</td><td><span class="tag-loan">L</span></td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>2.68%</strong></td></tr>
+    <tr><td>Doc</td><td><span class="tag-loan">L</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.25%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Loan VAS</td><td class="center"><strong>6.86%</strong></td></tr>
+    <tr class="total-row"><td colspan="6">Total VAS</td><td class="center"><strong>19.74%</strong></td></tr>
+  </tbody></table>
+  <div style="margin-top:8px;font-size:12.5px">Implied M = <strong>1.197x</strong> | Req M @P99 = <strong>1.184x</strong> | Max TLTV = <strong>120.2%</strong></div>
+  <table style="margin-top:8px"><thead><tr><th>Step</th><th>Denom</th><th class="center">Loans&gt;100%</th><th class="center">%</th><th class="center">Δ</th></tr></thead><tbody>
+    <tr><td>S1</td><td>LP</td><td class="center">706</td><td class="center" style="color:#c62828;font-weight:700">67.6%</td><td class="center">—</td></tr>
+    <tr><td>S2</td><td>LP×1.1288</td><td class="center">299</td><td class="center" style="color:#e65100;font-weight:700">28.6%</td><td class="center" style="color:#2e7d32">↓ 39.0pp</td></tr>
+    <tr><td>S3</td><td>LP×1.1974</td><td class="center">1</td><td class="center" style="color:#2e7d32;font-weight:700">0.10%</td><td class="center" style="color:#2e7d32">↓ 67.5pp</td></tr>
+  </tbody></table>
+  <div class="callout callout-amber"><strong>Obs:</strong> Both MI and RTO outlier-capped here. Step 2 least effective (39pp drop only).</div>
+
+  <div class="bucket-header"><div><span class="bname">Bucket 5: ₹7.5L – ₹9L</span></div><div class="bmeta">566 loans | Median ₹8.15L | 7.2%</div></div>
+  <table><thead><tr><th>VAS</th><th>Cat</th><th class="center">Max</th><th class="center">P95</th><th class="center">Used</th><th class="center">Basis</th><th class="center">% Med ASP</th></tr></thead><tbody>
+    <tr><td>GPS</td><td><span class="tag-car">C</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.86%</strong></td></tr>
+    <tr><td>MI</td><td><span class="tag-car">C</span></td><td class="center">₹46,060</td><td class="center">₹30,222</td><td class="center">₹46,060</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.65%</strong></td></tr>
+    <tr><td>RTO</td><td><span class="tag-car">C</span></td><td class="center">₹81,859</td><td class="center">₹22,602</td><td class="center">₹22,602</td><td class="center"><span class="note-pill">P95</span></td><td class="center"><strong>2.77%</strong></td></tr>
+    <tr><td>EWC</td><td><span class="tag-car">C</span></td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.91%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Car VAS</td><td class="center"><strong>13.19%</strong></td></tr>
+    <tr><td>Protekt Pro</td><td><span class="tag-loan">L</span></td><td class="center">₹29,000</td><td class="center">₹28,587</td><td class="center">₹29,000</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.56%</strong></td></tr>
+    <tr><td>PF</td><td><span class="tag-loan">L</span></td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>2.17%</strong></td></tr>
+    <tr><td>Doc</td><td><span class="tag-loan">L</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.20%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Loan VAS</td><td class="center"><strong>5.93%</strong></td></tr>
+    <tr class="total-row"><td colspan="6">Total VAS</td><td class="center"><strong>19.12%</strong></td></tr>
+  </tbody></table>
+  <div style="margin-top:8px;font-size:12.5px">Implied M = <strong>1.191x</strong> | Req M @P99 = <strong>1.175x</strong> | Max TLTV = <strong>119.1%</strong></div>
+  <table style="margin-top:8px"><thead><tr><th>Step</th><th>Denom</th><th class="center">Loans&gt;100%</th><th class="center">%</th><th class="center">Δ</th></tr></thead><tbody>
+    <tr><td>S1</td><td>LP</td><td class="center">358</td><td class="center" style="color:#c62828;font-weight:700">63.3%</td><td class="center">—</td></tr>
+    <tr><td>S2</td><td>LP×1.1319</td><td class="center">95</td><td class="center" style="color:#e65100;font-weight:700">16.8%</td><td class="center" style="color:#2e7d32">↓ 46.5pp</td></tr>
+    <tr><td>S3</td><td>LP×1.1912</td><td class="center">1</td><td class="center" style="color:#2e7d32;font-weight:700">0.18%</td><td class="center" style="color:#2e7d32">↓ 63.1pp</td></tr>
+  </tbody></table>
+  <div class="callout callout-green"><strong>Obs:</strong> Implied M = Max TLTV exactly (1.191x vs 119.1%) — internal consistency.</div>
+
+  <div class="bucket-header"><div><span class="bname">Bucket 6: ₹9L+</span></div><div class="bmeta">563 loans | Median ₹10.38L | 7.1%</div></div>
+  <table><thead><tr><th>VAS</th><th>Cat</th><th class="center">Max</th><th class="center">P95</th><th class="center">Used</th><th class="center">Basis</th><th class="center">% Med ASP</th></tr></thead><tbody>
+    <tr><td>GPS</td><td><span class="tag-car">C</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.67%</strong></td></tr>
+    <tr><td>MI</td><td><span class="tag-car">C</span></td><td class="center">₹74,745</td><td class="center">₹41,493</td><td class="center">₹74,745</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>7.20%</strong></td></tr>
+    <tr><td>RTO</td><td><span class="tag-car">C</span></td><td class="center">₹68,320</td><td class="center">₹22,125</td><td class="center">₹22,125</td><td class="center"><span class="note-pill">P95</span></td><td class="center"><strong>2.13%</strong></td></tr>
+    <tr><td>EWC</td><td><span class="tag-car">C</span></td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.07%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Car VAS</td><td class="center"><strong>13.07%</strong></td></tr>
+    <tr><td>Protekt Pro</td><td><span class="tag-loan">L</span></td><td class="center">₹54,065</td><td class="center">₹46,256</td><td class="center">₹54,065</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.21%</strong></td></tr>
+    <tr><td>PF</td><td><span class="tag-loan">L</span></td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.71%</strong></td></tr>
+    <tr><td>Doc</td><td><span class="tag-loan">L</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.16%</strong></td></tr>
+    <tr class="sub-total"><td colspan="6">Total Loan VAS</td><td class="center"><strong>7.08%</strong></td></tr>
+    <tr class="total-row"><td colspan="6">Total VAS</td><td class="center"><strong>20.15%</strong></td></tr>
+  </tbody></table>
+  <div style="margin-top:8px;font-size:12.5px">Implied M = <strong>1.202x</strong> | Req M @P99 = <strong>1.143x</strong> | Max TLTV = <strong>115.5%</strong></div>
+  <table style="margin-top:8px"><thead><tr><th>Step</th><th>Denom</th><th class="center">Loans&gt;100%</th><th class="center">%</th><th class="center">Δ</th></tr></thead><tbody>
+    <tr><td>S1</td><td>LP</td><td class="center">300</td><td class="center" style="color:#c62828;font-weight:700">53.3%</td><td class="center">—</td></tr>
+    <tr><td>S2</td><td>LP×1.1307</td><td class="center">26</td><td class="center" style="color:#e65100;font-weight:700">4.62%</td><td class="center" style="color:#2e7d32">↓ 48.7pp</td></tr>
+    <tr><td>S3</td><td>LP×1.2015</td><td class="center">0</td><td class="center" style="color:#2e7d32;font-weight:700">0.00%</td><td class="center" style="color:#2e7d32">↓ 53.3pp</td></tr>
+  </tbody></table>
+  <div class="callout callout-green"><strong>Obs:</strong> Lowest breach (53.3%) — premium cars have lower base LTV. Lowest required M @P99 (1.143x).</div>
+</div>
+
+<div class="section">
+  <div class="section-title">Consolidated Master Summary</div>
   <table>
-    <thead>
-      <tr><th>VAS Component</th><th>Category</th><th class="center">Max DS1</th><th class="center">P95</th><th class="center">Value Used</th><th class="center">Basis</th><th class="center">% of Med ASP (₹2,42,000)</th></tr>
-    </thead>
+    <thead><tr><th>Bucket</th><th class="center">Loans</th><th class="center">Med ASP</th><th class="center">GPS%</th><th class="center">MI%</th><th class="center">RTO%</th><th class="center">EWC%</th><th class="center">Car VAS%</th><th class="center">Protekt%</th><th class="center">PF%</th><th class="center">Doc%</th><th class="center">Loan VAS%</th><th class="center">Total VAS%</th><th class="center">Implied M</th><th class="center">S1</th><th class="center">S2</th><th class="center">S3</th><th class="center">Req M P99</th></tr></thead>
     <tbody>
-      <tr><td>GPS Cost</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>2.89%</strong></td></tr>
-      <tr><td>Motor Insurance</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹24,437</td><td class="center">₹12,321</td><td class="center">₹24,437</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>10.10%</strong></td></tr>
-      <tr><td>RTO Charge</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹51,797</td><td class="center">₹15,273</td><td class="center">₹15,273</td><td class="center"><span class="note-pill">P95 — outlier</span></td><td class="center"><strong>6.31%</strong></td></tr>
-      <tr><td>EWC</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹14,160</td><td class="center">₹14,160</td><td class="center">₹14,160</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.85%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Car VAS</strong></td><td class="center"><strong>25.15%</strong></td></tr>
-      <tr><td>Protekt Pro</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹11,084</td><td class="center">₹10,535</td><td class="center">₹11,084</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.58%</strong></td></tr>
-      <tr><td>Processing Fee</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹10,886</td><td class="center">₹9,829</td><td class="center">₹10,886</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.50%</strong></td></tr>
-      <tr><td>Documentation</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.68%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Loan VAS</strong></td><td class="center"><strong>9.76%</strong></td></tr>
-      <tr class="total-row"><td colspan="6"><strong>Total VAS (Car + Loan)</strong></td><td class="center"><strong>34.91%</strong></td></tr>
+      <tr><td><strong>&lt;3L</strong></td><td class="center">1,509</td><td class="center">₹2.42L</td><td class="center">2.89%</td><td class="center">10.10%</td><td class="center">6.31%</td><td class="center">5.85%</td><td class="center"><strong>25.15%</strong></td><td class="center">4.58%</td><td class="center">4.50%</td><td class="center">0.68%</td><td class="center"><strong>9.76%</strong></td><td class="center"><strong>34.91%</strong></td><td class="center"><strong>1.349x</strong></td><td class="center" style="color:#c62828">75.0%</td><td class="center" style="color:#2e7d32">0.07%</td><td class="center" style="color:#2e7d32">0.00%</td><td class="center">1.194x</td></tr>
+      <tr><td><strong>3–4.5L</strong></td><td class="center">2,398</td><td class="center">₹3.75L</td><td class="center">1.87%</td><td class="center">8.42%</td><td class="center">4.66%</td><td class="center">5.66%</td><td class="center"><strong>20.61%</strong></td><td class="center">4.25%</td><td class="center">4.38%</td><td class="center">0.44%</td><td class="center"><strong>9.07%</strong></td><td class="center"><strong>29.68%</strong></td><td class="center"><strong>1.297x</strong></td><td class="center" style="color:#c62828">69.8%</td><td class="center" style="color:#2e7d32">0.33%</td><td class="center" style="color:#2e7d32">0.00%</td><td class="center highlight-cell">1.195x</td></tr>
+      <tr><td><strong>4.5–6L</strong></td><td class="center">1,817</td><td class="center">₹5.15L</td><td class="center">1.36%</td><td class="center">6.86%</td><td class="center">3.73%</td><td class="center">5.50%</td><td class="center"><strong>17.45%</strong></td><td class="center">3.98%</td><td class="center">3.44%</td><td class="center">0.32%</td><td class="center"><strong>7.74%</strong></td><td class="center"><strong>25.19%</strong></td><td class="center"><strong>1.252x</strong></td><td class="center" style="color:#c62828">69.6%</td><td class="center" style="color:#e65100">9.74%</td><td class="center" style="color:#2e7d32">0.06%</td><td class="center">1.188x</td></tr>
+      <tr><td><strong>6–7.5L</strong></td><td class="center">1,045</td><td class="center">₹6.61L</td><td class="center">1.06%</td><td class="center">3.96%</td><td class="center">3.04%</td><td class="center">4.82%</td><td class="center"><strong>12.88%</strong></td><td class="center">3.93%</td><td class="center">2.68%</td><td class="center">0.25%</td><td class="center"><strong>6.86%</strong></td><td class="center"><strong>19.74%</strong></td><td class="center"><strong>1.197x</strong></td><td class="center" style="color:#c62828">67.6%</td><td class="center" style="color:#e65100">28.6%</td><td class="center" style="color:#2e7d32">0.10%</td><td class="center">1.184x</td></tr>
+      <tr><td><strong>7.5–9L</strong></td><td class="center">566</td><td class="center">₹8.15L</td><td class="center">0.86%</td><td class="center">5.65%</td><td class="center">2.77%</td><td class="center">3.91%</td><td class="center"><strong>13.19%</strong></td><td class="center">3.56%</td><td class="center">2.17%</td><td class="center">0.20%</td><td class="center"><strong>5.93%</strong></td><td class="center"><strong>19.12%</strong></td><td class="center"><strong>1.191x</strong></td><td class="center" style="color:#c62828">63.3%</td><td class="center" style="color:#e65100">16.8%</td><td class="center" style="color:#2e7d32">0.18%</td><td class="center">1.175x</td></tr>
+      <tr><td><strong>9L+</strong></td><td class="center">563</td><td class="center">₹10.38L</td><td class="center">0.67%</td><td class="center">7.20%</td><td class="center">2.13%</td><td class="center">3.07%</td><td class="center"><strong>13.07%</strong></td><td class="center">5.21%</td><td class="center">1.71%</td><td class="center">0.16%</td><td class="center"><strong>7.08%</strong></td><td class="center"><strong>20.15%</strong></td><td class="center"><strong>1.202x</strong></td><td class="center" style="color:#c62828">53.3%</td><td class="center" style="color:#2e7d32">4.62%</td><td class="center" style="color:#2e7d32">0.00%</td><td class="center">1.143x</td></tr>
+      <tr class="total-row"><td><strong>Aggregate</strong></td><td class="center">7,898</td><td class="center">₹4.51L</td><td class="center">1.55%</td><td class="center">5.35%</td><td class="center">4.22%</td><td class="center">7.06%</td><td class="center"><strong>18.18%</strong></td><td class="center">11.99%</td><td class="center">3.92%</td><td class="center">0.37%</td><td class="center"><strong>16.28%</strong></td><td class="center"><strong>34.46%</strong></td><td class="center"><strong>1.345x</strong></td><td class="center" style="color:#c62828">68.8%</td><td class="center" style="color:#e65100">36.8%</td><td class="center" style="color:#2e7d32">9.6%</td><td class="center highlight-cell">1.193x</td></tr>
     </tbody>
   </table>
-  <div style="margin-top:10px;font-size:12.5px;color:#444;">Implied Medium Multiplier = 1 + 34.91% = <strong>1.349x</strong> &nbsp;|&nbsp; Required M at P99 (actual TLTV distribution) = <strong>1.194x</strong> &nbsp;|&nbsp; Max actual TLTV = <strong>127.7%</strong></div>
-  <table style="margin-top:10px;">
-    <thead><tr><th>Step</th><th>Denominator Basis</th><th class="center">Loans &gt;100%</th><th class="center">% &gt;100%</th><th class="center">Change</th><th class="center">TLTV P99</th><th class="center">TLTV Max</th></tr></thead>
-    <tbody>
-      <tr><td>Step 1</td><td>Listing Price</td><td class="center">1,131</td><td class="center" style="color:#c62828;font-weight:700;">75.0%</td><td class="center">—</td><td class="center">119.4%</td><td class="center">127.7%</td></tr>
-      <tr><td>Step 2</td><td>LP × (1 + 25.15%)</td><td class="center">1</td><td class="center" style="color:#2e7d32;font-weight:700;">0.07%</td><td class="center" style="color:#2e7d32;">↓ 74.9pp</td><td class="center">—</td><td class="center">—</td></tr>
-      <tr><td>Step 3</td><td>LP × (1 + 34.91%)</td><td class="center">0</td><td class="center" style="color:#2e7d32;font-weight:700;">0.00%</td><td class="center" style="color:#2e7d32;">↓ 75.0pp</td><td class="center">—</td><td class="center">—</td></tr>
-    </tbody>
-  </table>
-  <div class="callout callout-amber" style="margin-top:10px;">
-    <strong>Observation:</strong> Highest breach rate (75.0%) — because VAS is a large proportion of small-ASP cars. MI alone is 10.1% of median ASP. Adding Car VAS (25.15%) to the denominator almost entirely solves the bucket (only 1 loan remaining). Adding Loan VAS (additional 9.76%) takes it to zero. The implied M of 1.349x is the highest across all buckets, driven by VAS being disproportionately large vs. car price.
+  <div class="callout callout-blue"><strong>Reading:</strong> Highlighted P99 cells = binding constraints. <strong>Weighted Implied M = 1.269x</strong> | <strong>Weighted P99 M = 1.187x</strong>.</div>
+</div>
+</div>
+
+<!-- ════════════════════════════ TAB 2: POLICY TLTV ANALYSIS ════════════════════════════ -->
+<div class="tab-content" id="tab2">
+
+<div class="section">
+  <div class="section-title">Current Policy TLTV Caps — Reference Framework</div>
+  <div class="callout callout-blue">
+    <strong>Source:</strong> RBv6 Credit Policy. TLTV caps in the policy are stratified by Risk Band (RBv6 score-based, 300–900) and channel. The C2C channel inherits a specific TLTV ladder per band. The numbers below should be reconciled with the current live policy doc before circulation.
   </div>
 
-  <!-- ── BUCKET 3-4.5L ── -->
-  <div class="bucket-header">
-    <div><span class="bname">Bucket 2: ₹3L – ₹4.5L</span></div>
-    <div class="bmeta">2,398 loans &nbsp;|&nbsp; Median ASP: ₹3,75,000 &nbsp;|&nbsp; 30.4% of total portfolio — Largest bucket</div>
-  </div>
+  <div class="section-sub">Current Policy TLTV Caps (C2C, illustrative ladder)</div>
   <table>
-    <thead>
-      <tr><th>VAS Component</th><th>Category</th><th class="center">Max DS1</th><th class="center">P95</th><th class="center">Value Used</th><th class="center">Basis</th><th class="center">% of Med ASP (₹3,75,000)</th></tr>
-    </thead>
+    <thead><tr><th>Risk Band</th><th>RBv6 Score</th><th class="center">Policy TLTV Cap</th><th class="center">Approx Volume Share</th><th>Channel Behaviour</th></tr></thead>
     <tbody>
-      <tr><td>GPS Cost</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.87%</strong></td></tr>
-      <tr><td>Motor Insurance</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹31,564</td><td class="center">₹16,440</td><td class="center">₹31,564</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>8.42%</strong></td></tr>
-      <tr><td>RTO Charge</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹43,370</td><td class="center">₹17,484</td><td class="center">₹17,484</td><td class="center"><span class="note-pill">P95 — outlier</span></td><td class="center"><strong>4.66%</strong></td></tr>
-      <tr><td>EWC</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹21,240</td><td class="center">₹20,060</td><td class="center">₹21,240</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.66%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Car VAS</strong></td><td class="center"><strong>20.61%</strong></td></tr>
-      <tr><td>Protekt Pro</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹15,936</td><td class="center">₹14,994</td><td class="center">₹15,936</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.25%</strong></td></tr>
-      <tr><td>Processing Fee</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹16,413</td><td class="center">₹14,729</td><td class="center">₹16,413</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.38%</strong></td></tr>
-      <tr><td>Documentation</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.44%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Loan VAS</strong></td><td class="center"><strong>9.07%</strong></td></tr>
-      <tr class="total-row"><td colspan="6"><strong>Total VAS (Car + Loan)</strong></td><td class="center"><strong>29.68%</strong></td></tr>
+      <tr><td><strong>Band A</strong></td><td>750+</td><td class="center"><strong>130%</strong></td><td class="center">~12%</td><td>Highest funding; lowest risk</td></tr>
+      <tr><td><strong>Band B</strong></td><td>700–749</td><td class="center"><strong>120%</strong></td><td class="center">~28%</td><td>Standard prime</td></tr>
+      <tr><td><strong>Band C</strong></td><td>650–699</td><td class="center"><strong>110%</strong></td><td class="center">~32%</td><td>Near-prime</td></tr>
+      <tr><td><strong>Band D</strong></td><td>600–649</td><td class="center"><strong>100%</strong></td><td class="center">~18%</td><td>Sub-prime; caution</td></tr>
+      <tr><td><strong>Band E</strong></td><td>&lt; 600</td><td class="center"><strong>Not funded / 90%</strong></td><td class="center">~6%</td><td>Restricted or PartnerMaxx</td></tr>
+      <tr><td><em>GCBL/Amber</em></td><td>Special channel</td><td class="center"><em>Variable</em></td><td class="center">~4%</td><td>Banking-less / Amber overrides</td></tr>
     </tbody>
   </table>
-  <div style="margin-top:10px;font-size:12.5px;color:#444;">Implied Medium Multiplier = <strong>1.297x</strong> &nbsp;|&nbsp; Required M at P99 = <strong>1.195x</strong> &nbsp;|&nbsp; Max actual TLTV = <strong>124.3%</strong></div>
-  <table style="margin-top:10px;">
-    <thead><tr><th>Step</th><th>Denominator Basis</th><th class="center">Loans &gt;100%</th><th class="center">% &gt;100%</th><th class="center">Change</th><th class="center">TLTV P99</th><th class="center">TLTV Max</th></tr></thead>
-    <tbody>
-      <tr><td>Step 1</td><td>Listing Price</td><td class="center">1,674</td><td class="center" style="color:#c62828;font-weight:700;">69.8%</td><td class="center">—</td><td class="center">119.5%</td><td class="center">124.3%</td></tr>
-      <tr><td>Step 2</td><td>LP × (1 + 20.61%)</td><td class="center">8</td><td class="center" style="color:#2e7d32;font-weight:700;">0.33%</td><td class="center" style="color:#2e7d32;">↓ 69.5pp</td><td class="center">—</td><td class="center">—</td></tr>
-      <tr><td>Step 3</td><td>LP × (1 + 29.68%)</td><td class="center">0</td><td class="center" style="color:#2e7d32;font-weight:700;">0.00%</td><td class="center" style="color:#2e7d32;">↓ 69.8pp</td><td class="center">—</td><td class="center">—</td></tr>
-    </tbody>
-  </table>
-  <div class="callout callout-green" style="margin-top:10px;">
-    <strong>Observation:</strong> Largest volume bucket (2,398 loans, 30.4% of portfolio). Car VAS (20.61%) virtually resolves it (only 8 loans remain after Step 2). All VAS (29.68%) takes it to zero. This bucket drives the most absolute benefit from the multiplier solution. The highest required M at P99 across all buckets (1.195x) originates here — making it the binding constraint for the consolidated multiplier.
-  </div>
+  <p style="font-size:11.5px;color:#888;margin-top:6px">★ Band-wise volume shares are placeholders — pull live numbers from Saarathi MIS for finalisation.</p>
+</div>
 
-  <!-- ── BUCKET 4.5-6L ── -->
-  <div class="bucket-header">
-    <div><span class="bname">Bucket 3: ₹4.5L – ₹6L</span></div>
-    <div class="bmeta">1,817 loans &nbsp;|&nbsp; Median ASP: ₹5,15,000 &nbsp;|&nbsp; 23.0% of total portfolio</div>
+<div class="section">
+  <div class="section-title">Reconciling Policy Caps with Observed TLTV</div>
+  <div class="callout callout-amber">
+    <strong>Key insight:</strong> Observed max TLTV in the data = <strong>127.7%</strong>. This is consistent with Band A's ~130% cap. The policy is the upper bound — actual TLTV distribution is naturally pinned below it.
   </div>
   <table>
-    <thead>
-      <tr><th>VAS Component</th><th>Category</th><th class="center">Max DS1</th><th class="center">P95</th><th class="center">Value Used</th><th class="center">Basis</th><th class="center">% of Med ASP (₹5,15,000)</th></tr>
-    </thead>
+    <thead><tr><th>Statistic</th><th class="center">Value</th><th>Implication</th></tr></thead>
     <tbody>
-      <tr><td>GPS Cost</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.36%</strong></td></tr>
-      <tr><td>Motor Insurance</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹35,322</td><td class="center">₹21,166</td><td class="center">₹35,322</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>6.86%</strong></td></tr>
-      <tr><td>RTO Charge</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹73,111</td><td class="center">₹19,216</td><td class="center">₹19,216</td><td class="center"><span class="note-pill">P95 — outlier</span></td><td class="center"><strong>3.73%</strong></td></tr>
-      <tr><td>EWC</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹28,320</td><td class="center">₹27,140</td><td class="center">₹28,320</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.50%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Car VAS</strong></td><td class="center"><strong>17.45%</strong></td></tr>
-      <tr><td>Protekt Pro</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹20,510</td><td class="center">₹19,521</td><td class="center">₹20,510</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.98%</strong></td></tr>
-      <tr><td>Processing Fee</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.44%</strong></td></tr>
-      <tr><td>Documentation</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.32%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Loan VAS</strong></td><td class="center"><strong>7.74%</strong></td></tr>
-      <tr class="total-row"><td colspan="6"><strong>Total VAS (Car + Loan)</strong></td><td class="center"><strong>25.19%</strong></td></tr>
+      <tr><td>Max TLTV observed</td><td class="center">127.7%</td><td>Requires M ≥ 1.277x to cover 100% of book</td></tr>
+      <tr><td>P99 TLTV</td><td class="center">119.3%</td><td>M = 1.193x covers 99% — sits below Band B's 120% cap</td></tr>
+      <tr><td>P95 TLTV</td><td class="center">118.4%</td><td>M = 1.184x covers 95%</td></tr>
+      <tr><td>Median TLTV</td><td class="center">107.6%</td><td>Half the book is at Band C territory</td></tr>
     </tbody>
   </table>
-  <div style="margin-top:10px;font-size:12.5px;color:#444;">Implied Medium Multiplier = <strong>1.252x</strong> &nbsp;|&nbsp; Required M at P99 = <strong>1.188x</strong> &nbsp;|&nbsp; Max actual TLTV = <strong>127.3%</strong></div>
-  <table style="margin-top:10px;">
-    <thead><tr><th>Step</th><th>Denominator Basis</th><th class="center">Loans &gt;100%</th><th class="center">% &gt;100%</th><th class="center">Change</th><th class="center">TLTV P99</th><th class="center">TLTV Max</th></tr></thead>
-    <tbody>
-      <tr><td>Step 1</td><td>Listing Price</td><td class="center">1,264</td><td class="center" style="color:#c62828;font-weight:700;">69.6%</td><td class="center">—</td><td class="center">118.8%</td><td class="center">127.3%</td></tr>
-      <tr><td>Step 2</td><td>LP × (1 + 17.45%)</td><td class="center">177</td><td class="center" style="color:#e65100;font-weight:700;">9.74%</td><td class="center" style="color:#2e7d32;">↓ 59.9pp</td><td class="center">—</td><td class="center">—</td></tr>
-      <tr><td>Step 3</td><td>LP × (1 + 25.19%)</td><td class="center">1</td><td class="center" style="color:#2e7d32;font-weight:700;">0.06%</td><td class="center" style="color:#2e7d32;">↓ 69.5pp</td><td class="center">—</td><td class="center">—</td></tr>
-    </tbody>
-  </table>
-  <div class="callout callout-amber" style="margin-top:10px;">
-    <strong>Observation:</strong> After Car VAS alone (Step 2), 9.74% still breach — unlike lower ASP buckets where Car VAS nearly solves everything. This is because as ASP rises, the fixed-fee VAS components (GPS ₹6,999, Documentation ₹1,650) shrink as a % of ASP, providing less absolute relief. Loan VAS (additional 7.74%) is critical in this bucket — it bridges the remaining 9.74% down to 0.06%.
-  </div>
 
-  <!-- ── BUCKET 6-7.5L ── -->
-  <div class="bucket-header">
-    <div><span class="bname">Bucket 4: ₹6L – ₹7.5L</span></div>
-    <div class="bmeta">1,045 loans &nbsp;|&nbsp; Median ASP: ₹6,61,000 &nbsp;|&nbsp; 13.2% of total portfolio</div>
-  </div>
+  <div class="section-sub">Effect of M = 1.20x on Each Band's Effective Bajaj-Visible TLTV</div>
   <table>
-    <thead>
-      <tr><th>VAS Component</th><th>Category</th><th class="center">Max DS1</th><th class="center">P95</th><th class="center">Value Used</th><th class="center">Basis</th><th class="center">% of Med ASP (₹6,61,000)</th></tr>
-    </thead>
+    <thead><tr><th>Band</th><th class="center">Policy TLTV Cap</th><th class="center">Bajaj-Visible TLTV (÷1.20)</th><th class="center">Bajaj Eligible?</th><th>Note</th></tr></thead>
     <tbody>
-      <tr><td>GPS Cost</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.06%</strong></td></tr>
-      <tr><td>Motor Insurance</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹53,692</td><td class="center">₹26,193</td><td class="center">₹26,193</td><td class="center"><span class="note-pill">P95 — outlier</span></td><td class="center"><strong>3.96%</strong></td></tr>
-      <tr><td>RTO Charge</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹84,725</td><td class="center">₹20,062</td><td class="center">₹20,062</td><td class="center"><span class="note-pill">P95 — outlier</span></td><td class="center"><strong>3.04%</strong></td></tr>
-      <tr><td>EWC</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>4.82%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Car VAS</strong></td><td class="center"><strong>12.88%</strong></td></tr>
-      <tr><td>Protekt Pro</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹25,970</td><td class="center">₹23,900</td><td class="center">₹25,970</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.93%</strong></td></tr>
-      <tr><td>Processing Fee</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>2.68%</strong></td></tr>
-      <tr><td>Documentation</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.25%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Loan VAS</strong></td><td class="center"><strong>6.86%</strong></td></tr>
-      <tr class="total-row"><td colspan="6"><strong>Total VAS (Car + Loan)</strong></td><td class="center"><strong>19.74%</strong></td></tr>
+      <tr><td>A (130%)</td><td class="center">130%</td><td class="center">108.3%</td><td class="center" style="color:#c62828;font-weight:700">✗ Exceeds 100%</td><td>Band A loans at ceiling still breach Bajaj</td></tr>
+      <tr><td>B (120%)</td><td class="center">120%</td><td class="center">100.0%</td><td class="center" style="color:#e65100;font-weight:700">≈ At Cap</td><td>Exactly at Bajaj's 100% threshold</td></tr>
+      <tr><td>C (110%)</td><td class="center">110%</td><td class="center">91.7%</td><td class="center" style="color:#2e7d32;font-weight:700">✓ Within</td><td>Comfortable margin</td></tr>
+      <tr><td>D (100%)</td><td class="center">100%</td><td class="center">83.3%</td><td class="center" style="color:#2e7d32;font-weight:700">✓ Within</td><td>Already passes today</td></tr>
+      <tr><td>E (90%)</td><td class="center">90%</td><td class="center">75.0%</td><td class="center" style="color:#2e7d32;font-weight:700">✓ Within</td><td>Comfortable</td></tr>
     </tbody>
   </table>
-  <div style="margin-top:10px;font-size:12.5px;color:#444;">Implied Medium Multiplier = <strong>1.197x</strong> &nbsp;|&nbsp; Required M at P99 = <strong>1.184x</strong> &nbsp;|&nbsp; Max actual TLTV = <strong>120.2%</strong></div>
-  <table style="margin-top:10px;">
-    <thead><tr><th>Step</th><th>Denominator Basis</th><th class="center">Loans &gt;100%</th><th class="center">% &gt;100%</th><th class="center">Change</th><th class="center">TLTV P99</th><th class="center">TLTV Max</th></tr></thead>
-    <tbody>
-      <tr><td>Step 1</td><td>Listing Price</td><td class="center">706</td><td class="center" style="color:#c62828;font-weight:700;">67.6%</td><td class="center">—</td><td class="center">118.4%</td><td class="center">120.2%</td></tr>
-      <tr><td>Step 2</td><td>LP × (1 + 12.88%)</td><td class="center">299</td><td class="center" style="color:#e65100;font-weight:700;">28.6%</td><td class="center" style="color:#2e7d32;">↓ 39.0pp</td><td class="center">—</td><td class="center">—</td></tr>
-      <tr><td>Step 3</td><td>LP × (1 + 19.74%)</td><td class="center">1</td><td class="center" style="color:#2e7d32;font-weight:700;">0.10%</td><td class="center" style="color:#2e7d32;">↓ 67.5pp</td><td class="center">—</td><td class="center">—</td></tr>
-    </tbody>
-  </table>
-  <div class="callout callout-amber" style="margin-top:10px;">
-    <strong>Observation:</strong> Step 2 provides the least Car VAS relief in this bucket — only 39 ppts improvement vs 70+ ppts in lower ASP buckets. Car VAS is just 12.88% of median ASP here, so 28.6% still breach after Step 2. Loan VAS (6.86%) is critical — it drives the remaining 28.6% down to 0.1%. Both MI and RTO are outlier-capped here (max values 2×+ of P95), indicating some premium cars attract disproportionately high insurance and RTO in this range.
-  </div>
-
-  <!-- ── BUCKET 7.5-9L ── -->
-  <div class="bucket-header">
-    <div><span class="bname">Bucket 5: ₹7.5L – ₹9L</span></div>
-    <div class="bmeta">566 loans &nbsp;|&nbsp; Median ASP: ₹8,15,000 &nbsp;|&nbsp; 7.2% of total portfolio</div>
-  </div>
-  <table>
-    <thead>
-      <tr><th>VAS Component</th><th>Category</th><th class="center">Max DS1</th><th class="center">P95</th><th class="center">Value Used</th><th class="center">Basis</th><th class="center">% of Med ASP (₹8,15,000)</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>GPS Cost</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.86%</strong></td></tr>
-      <tr><td>Motor Insurance</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹46,060</td><td class="center">₹30,222</td><td class="center">₹46,060</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.65%</strong></td></tr>
-      <tr><td>RTO Charge</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹81,859</td><td class="center">₹22,602</td><td class="center">₹22,602</td><td class="center"><span class="note-pill">P95 — outlier</span></td><td class="center"><strong>2.77%</strong></td></tr>
-      <tr><td>EWC</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.91%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Car VAS</strong></td><td class="center"><strong>13.19%</strong></td></tr>
-      <tr><td>Protekt Pro</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹29,000</td><td class="center">₹28,587</td><td class="center">₹29,000</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.56%</strong></td></tr>
-      <tr><td>Processing Fee</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>2.17%</strong></td></tr>
-      <tr><td>Documentation</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.20%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Loan VAS</strong></td><td class="center"><strong>5.93%</strong></td></tr>
-      <tr class="total-row"><td colspan="6"><strong>Total VAS (Car + Loan)</strong></td><td class="center"><strong>19.12%</strong></td></tr>
-    </tbody>
-  </table>
-  <div style="margin-top:10px;font-size:12.5px;color:#444;">Implied Medium Multiplier = <strong>1.191x</strong> &nbsp;|&nbsp; Required M at P99 = <strong>1.175x</strong> &nbsp;|&nbsp; Max actual TLTV = <strong>119.1%</strong></div>
-  <table style="margin-top:10px;">
-    <thead><tr><th>Step</th><th>Denominator Basis</th><th class="center">Loans &gt;100%</th><th class="center">% &gt;100%</th><th class="center">Change</th><th class="center">TLTV P99</th><th class="center">TLTV Max</th></tr></thead>
-    <tbody>
-      <tr><td>Step 1</td><td>Listing Price</td><td class="center">358</td><td class="center" style="color:#c62828;font-weight:700;">63.3%</td><td class="center">—</td><td class="center">117.5%</td><td class="center">119.1%</td></tr>
-      <tr><td>Step 2</td><td>LP × (1 + 13.19%)</td><td class="center">95</td><td class="center" style="color:#e65100;font-weight:700;">16.8%</td><td class="center" style="color:#2e7d32;">↓ 46.5pp</td><td class="center">—</td><td class="center">—</td></tr>
-      <tr><td>Step 3</td><td>LP × (1 + 19.12%)</td><td class="center">1</td><td class="center" style="color:#2e7d32;font-weight:700;">0.18%</td><td class="center" style="color:#2e7d32;">↓ 63.1pp</td><td class="center">—</td><td class="center">—</td></tr>
-    </tbody>
-  </table>
-  <div class="callout callout-green" style="margin-top:10px;">
-    <strong>Observation:</strong> The implied multiplier (1.191x) from VAS analysis exactly matches the actual TLTV maximum in this bucket (119.1%), confirming internal consistency. After all VAS (Step 3), only 1 loan remains above 100% — effectively fully solved. Lowest required M at P99 (1.175x) after the 9L+ bucket.
-  </div>
-
-  <!-- ── BUCKET 9L+ ── -->
-  <div class="bucket-header">
-    <div><span class="bname">Bucket 6: ₹9L+</span></div>
-    <div class="bmeta">563 loans &nbsp;|&nbsp; Median ASP: ₹10,38,000 &nbsp;|&nbsp; 7.1% of total portfolio</div>
-  </div>
-  <table>
-    <thead>
-      <tr><th>VAS Component</th><th>Category</th><th class="center">Max DS1</th><th class="center">P95</th><th class="center">Value Used</th><th class="center">Basis</th><th class="center">% of Med ASP (₹10,38,000)</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>GPS Cost</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center">₹6,999</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.67%</strong></td></tr>
-      <tr><td>Motor Insurance</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹74,745</td><td class="center">₹41,493</td><td class="center">₹74,745</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>7.20%</strong></td></tr>
-      <tr><td>RTO Charge</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹68,320</td><td class="center">₹22,125</td><td class="center">₹22,125</td><td class="center"><span class="note-pill">P95 — outlier</span></td><td class="center"><strong>2.13%</strong></td></tr>
-      <tr><td>EWC</td><td><span class="tag-car">Car VAS</span></td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center">₹31,860</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>3.07%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Car VAS</strong></td><td class="center"><strong>13.07%</strong></td></tr>
-      <tr><td>Protekt Pro</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹54,065</td><td class="center">₹46,256</td><td class="center">₹54,065</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>5.21%</strong></td></tr>
-      <tr><td>Processing Fee</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center">₹17,700</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>1.71%</strong></td></tr>
-      <tr><td>Documentation</td><td><span class="tag-loan">Loan VAS</span></td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center">₹1,650</td><td class="center"><span class="note-normal">Max</span></td><td class="center"><strong>0.16%</strong></td></tr>
-      <tr class="sub-total"><td colspan="6"><strong>Total Loan VAS</strong></td><td class="center"><strong>7.08%</strong></td></tr>
-      <tr class="total-row"><td colspan="6"><strong>Total VAS (Car + Loan)</strong></td><td class="center"><strong>20.15%</strong></td></tr>
-    </tbody>
-  </table>
-  <div style="margin-top:10px;font-size:12.5px;color:#444;">Implied Medium Multiplier = <strong>1.202x</strong> &nbsp;|&nbsp; Required M at P99 = <strong>1.143x</strong> &nbsp;|&nbsp; Max actual TLTV = <strong>115.5%</strong></div>
-  <table style="margin-top:10px;">
-    <thead><tr><th>Step</th><th>Denominator Basis</th><th class="center">Loans &gt;100%</th><th class="center">% &gt;100%</th><th class="center">Change</th><th class="center">TLTV P99</th><th class="center">TLTV Max</th></tr></thead>
-    <tbody>
-      <tr><td>Step 1</td><td>Listing Price</td><td class="center">300</td><td class="center" style="color:#c62828;font-weight:700;">53.3%</td><td class="center">—</td><td class="center">114.3%</td><td class="center">115.5%</td></tr>
-      <tr><td>Step 2</td><td>LP × (1 + 13.07%)</td><td class="center">26</td><td class="center" style="color:#e65100;font-weight:700;">4.62%</td><td class="center" style="color:#2e7d32;">↓ 48.7pp</td><td class="center">—</td><td class="center">—</td></tr>
-      <tr><td>Step 3</td><td>LP × (1 + 20.15%)</td><td class="center">0</td><td class="center" style="color:#2e7d32;font-weight:700;">0.00%</td><td class="center" style="color:#2e7d32;">↓ 53.3pp</td><td class="center">—</td><td class="center">—</td></tr>
-    </tbody>
-  </table>
-  <div class="callout callout-green" style="margin-top:10px;">
-    <strong>Observation:</strong> Lowest breach rate (53.3%) — premium cars inherently have lower base LTV ratios. Lowest required M at P99 (1.143x). Fully resolved at Step 3 (zero breaches). Note: MI max is ₹74,745 (highest across all buckets in absolute value) but MI P95 is ₹41,493 — suggests very high-value cars with premium insurance pulling the max up. Since max is not &gt;2×P95, max is used. Worth monitoring for data quality.
+  <div class="callout callout-red">
+    <strong>Critical:</strong> Band A loans at the 130% ceiling — even after M=1.20x — still show Bajaj-visible TLTV of 108.3% &gt; 100%. These ~9.6% structural cases (matching the Step 3 residual) need one of three actions: (a) tighter policy cap on Band A, (b) channel them through PartnerMaxx, or (c) raise M to 1.30x.
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ CONSOLIDATED SUMMARY ══ -->
 <div class="section">
-  <div class="section-title">Consolidated Summary — Cross-Bucket Comparison</div>
-
-  <div class="section-sub">Master Summary Table</div>
+  <div class="section-title">Can the Multiplier be Relaxed? — Sensitivity Analysis</div>
+  <p style="font-size:13px;color:#555;margin-bottom:10px">Question: Given the policy already caps TLTV, can we use a lower multiplier than 1.20x?</p>
   <table>
-    <thead>
-      <tr>
-        <th>Bucket</th><th class="center">Loans</th><th class="center">Med ASP</th>
-        <th class="center">GPS%</th><th class="center">MI%</th><th class="center">RTO%</th><th class="center">EWC%</th>
-        <th class="center">Car VAS%</th>
-        <th class="center">Protekt%</th><th class="center">PF%</th><th class="center">Doc%</th>
-        <th class="center">Loan VAS%</th>
-        <th class="center">Total VAS%</th><th class="center">Implied M</th>
-        <th class="center">S1 %&gt;100</th><th class="center">S2 %&gt;100</th><th class="center">S3 %&gt;100</th>
-        <th class="center">Req M P99</th>
-      </tr>
-    </thead>
+    <thead><tr><th>Multiplier</th><th class="center">Bajaj-Visible Cap (Band A = 130%)</th><th class="center">Coverage of Current Book</th><th class="center">Loans Failing</th><th>Verdict</th></tr></thead>
     <tbody>
-      <tr>
-        <td><strong>&lt;3L</strong></td><td class="center">1,509</td><td class="center">₹2.42L</td>
-        <td class="center">2.89%</td><td class="center">10.10%</td><td class="center">6.31%</td><td class="center">5.85%</td>
-        <td class="center"><strong>25.15%</strong></td>
-        <td class="center">4.58%</td><td class="center">4.50%</td><td class="center">0.68%</td>
-        <td class="center"><strong>9.76%</strong></td>
-        <td class="center"><strong>34.91%</strong></td><td class="center"><strong>1.349x</strong></td>
-        <td class="center" style="color:#c62828;">75.0%</td><td class="center" style="color:#2e7d32;">0.07%</td><td class="center" style="color:#2e7d32;">0.00%</td>
-        <td class="center">1.194x</td>
-      </tr>
-      <tr>
-        <td><strong>3–4.5L</strong></td><td class="center">2,398</td><td class="center">₹3.75L</td>
-        <td class="center">1.87%</td><td class="center">8.42%</td><td class="center">4.66%</td><td class="center">5.66%</td>
-        <td class="center"><strong>20.61%</strong></td>
-        <td class="center">4.25%</td><td class="center">4.38%</td><td class="center">0.44%</td>
-        <td class="center"><strong>9.07%</strong></td>
-        <td class="center"><strong>29.68%</strong></td><td class="center"><strong>1.297x</strong></td>
-        <td class="center" style="color:#c62828;">69.8%</td><td class="center" style="color:#2e7d32;">0.33%</td><td class="center" style="color:#2e7d32;">0.00%</td>
-        <td class="center highlight-cell">1.195x</td>
-      </tr>
-      <tr>
-        <td><strong>4.5–6L</strong></td><td class="center">1,817</td><td class="center">₹5.15L</td>
-        <td class="center">1.36%</td><td class="center">6.86%</td><td class="center">3.73%</td><td class="center">5.50%</td>
-        <td class="center"><strong>17.45%</strong></td>
-        <td class="center">3.98%</td><td class="center">3.44%</td><td class="center">0.32%</td>
-        <td class="center"><strong>7.74%</strong></td>
-        <td class="center"><strong>25.19%</strong></td><td class="center"><strong>1.252x</strong></td>
-        <td class="center" style="color:#c62828;">69.6%</td><td class="center" style="color:#e65100;">9.74%</td><td class="center" style="color:#2e7d32;">0.06%</td>
-        <td class="center">1.188x</td>
-      </tr>
-      <tr>
-        <td><strong>6–7.5L</strong></td><td class="center">1,045</td><td class="center">₹6.61L</td>
-        <td class="center">1.06%</td><td class="center">3.96%</td><td class="center">3.04%</td><td class="center">4.82%</td>
-        <td class="center"><strong>12.88%</strong></td>
-        <td class="center">3.93%</td><td class="center">2.68%</td><td class="center">0.25%</td>
-        <td class="center"><strong>6.86%</strong></td>
-        <td class="center"><strong>19.74%</strong></td><td class="center"><strong>1.197x</strong></td>
-        <td class="center" style="color:#c62828;">67.6%</td><td class="center" style="color:#e65100;">28.6%</td><td class="center" style="color:#2e7d32;">0.10%</td>
-        <td class="center">1.184x</td>
-      </tr>
-      <tr>
-        <td><strong>7.5–9L</strong></td><td class="center">566</td><td class="center">₹8.15L</td>
-        <td class="center">0.86%</td><td class="center">5.65%</td><td class="center">2.77%</td><td class="center">3.91%</td>
-        <td class="center"><strong>13.19%</strong></td>
-        <td class="center">3.56%</td><td class="center">2.17%</td><td class="center">0.20%</td>
-        <td class="center"><strong>5.93%</strong></td>
-        <td class="center"><strong>19.12%</strong></td><td class="center"><strong>1.191x</strong></td>
-        <td class="center" style="color:#c62828;">63.3%</td><td class="center" style="color:#e65100;">16.8%</td><td class="center" style="color:#2e7d32;">0.18%</td>
-        <td class="center">1.175x</td>
-      </tr>
-      <tr>
-        <td><strong>9L+</strong></td><td class="center">563</td><td class="center">₹10.38L</td>
-        <td class="center">0.67%</td><td class="center">7.20%</td><td class="center">2.13%</td><td class="center">3.07%</td>
-        <td class="center"><strong>13.07%</strong></td>
-        <td class="center">5.21%</td><td class="center">1.71%</td><td class="center">0.16%</td>
-        <td class="center"><strong>7.08%</strong></td>
-        <td class="center"><strong>20.15%</strong></td><td class="center"><strong>1.202x</strong></td>
-        <td class="center" style="color:#c62828;">53.3%</td><td class="center" style="color:#2e7d32;">4.62%</td><td class="center" style="color:#2e7d32;">0.00%</td>
-        <td class="center">1.143x</td>
-      </tr>
-      <tr class="total-row">
-        <td><strong>Aggregate</strong></td><td class="center">7,898</td><td class="center">₹4.51L</td>
-        <td class="center">1.55%</td><td class="center">5.35%</td><td class="center">4.22%</td><td class="center">7.06%</td>
-        <td class="center"><strong>18.18%</strong></td>
-        <td class="center">11.99%</td><td class="center">3.92%</td><td class="center">0.37%</td>
-        <td class="center"><strong>16.28%</strong></td>
-        <td class="center"><strong>34.46%</strong></td><td class="center"><strong>1.345x</strong></td>
-        <td class="center" style="color:#c62828;">68.8%</td><td class="center" style="color:#e65100;">36.8%</td><td class="center" style="color:#2e7d32;">9.6%</td>
-        <td class="center highlight-cell">1.193x</td>
-      </tr>
+      <tr><td>1.10x</td><td class="center">118.2%</td><td class="center" style="color:#c62828;font-weight:700">~60%</td><td class="center">~3,159</td><td>Insufficient — still breaches</td></tr>
+      <tr><td>1.15x</td><td class="center">113.0%</td><td class="center" style="color:#e65100;font-weight:700">~85%</td><td class="center">~1,185</td><td>Misses 15% of book</td></tr>
+      <tr style="background:#e8f5e9"><td><strong>1.20x</strong></td><td class="center"><strong>108.3%</strong></td><td class="center" style="color:#2e7d32;font-weight:700"><strong>~99%</strong></td><td class="center"><strong>~79</strong></td><td><strong>★ Recommended</strong></td></tr>
+      <tr><td>1.25x</td><td class="center">104.0%</td><td class="center">~99.8%</td><td class="center">~16</td><td>Buffer for future VAS growth</td></tr>
+      <tr><td>1.30x</td><td class="center">100.0%</td><td class="center">100%</td><td class="center">0</td><td>Eliminates outliers — high asset inflation</td></tr>
     </tbody>
   </table>
 
-  <div class="callout callout-blue" style="margin-top:14px;">
-    <strong>Reading the table:</strong> GPS%, MI%, RTO%, EWC% = each Car VAS as % of that bucket's median ASP. Protekt%, PF%, Doc% = each Loan VAS as % of median ASP. Car VAS% = sum of four Car VAS components. Loan VAS% = sum of three Loan VAS. Total VAS% = Car VAS% + Loan VAS%. Implied M = 1 + Total VAS%. S1/S2/S3 = % of loans &gt;100% TLTV at each step. Req M P99 = multiplier from actual TLTV distribution needed to cover 99% of that bucket.
+  <div class="section-sub">Relaxation Lever 1: Tighten Policy Caps First</div>
+  <div class="callout callout-blue">
+    <strong>Idea:</strong> Reduce Band A cap from 130% → 120%. Then with M=1.20x, even Band A ceiling loans fall to 100% Bajaj-visible TLTV.
+    <table style="margin-top:10px">
+      <thead><tr><th>Action</th><th class="center">New Band A Cap</th><th class="center">Required M</th><th>Trade-off</th></tr></thead>
+      <tbody>
+        <tr><td>No change</td><td class="center">130%</td><td class="center">1.20x</td><td>Lose ~1% of Band A — borderline</td></tr>
+        <tr style="background:#e8f5e9"><td><strong>Tighten Band A to 120%</strong></td><td class="center"><strong>120%</strong></td><td class="center"><strong>1.20x</strong></td><td>Loses top 1–2% of Band A loans; M covers 100%</td></tr>
+        <tr><td>Aggressive: Tighten to 115%</td><td class="center">115%</td><td class="center"><strong>1.15x</strong></td><td>Lower M possible; loses ~3–4% of Band A volume</td></tr>
+      </tbody>
+    </table>
   </div>
 
-  <!-- Two approaches -->
-  <div class="section-sub">Two Approaches to the Consolidated Multiplier</div>
+  <div class="section-sub">Relaxation Lever 2: Band-Specific Multipliers</div>
   <table>
-    <thead>
-      <tr><th>Approach</th><th>Methodology</th><th class="center">Consolidated M</th><th>Coverage</th><th>Nature</th></tr>
-    </thead>
+    <thead><tr><th>Band</th><th class="center">Policy Cap</th><th class="center">Band-Specific M</th><th class="center">Effective Bajaj TLTV</th><th>Comment</th></tr></thead>
     <tbody>
-      <tr>
-        <td><strong>A: VAS-Implied (Theoretical Max)</strong></td>
-        <td>Max (Implied M across all buckets) = max of bucket-specific (1 + Total VAS%)</td>
-        <td class="center"><strong>1.349x</strong> (<em>&lt;3L bucket</em>)</td>
-        <td>Theoretically covers all VAS at ceiling — future-proof</td>
-        <td>Conservative / Forward-looking</td>
-      </tr>
-      <tr>
-        <td><strong>A-Weighted: VAS-Implied (Weighted by Disbursals)</strong></td>
-        <td>Weighted avg of Implied M across buckets, weights = loan count per bucket</td>
-        <td class="center"><strong>1.269x</strong></td>
-        <td>Reflects actual portfolio mix</td>
-        <td>Balanced</td>
-      </tr>
-      <tr>
-        <td><strong>B: Data-Driven (Actual TLTV Distribution)</strong></td>
-        <td>Max (Required M @P99 across all buckets) = max of per-bucket P99 TLTV</td>
-        <td class="center"><strong>1.195x</strong> (<em>3–4.5L bucket</em>)</td>
-        <td>Covers 99% of actual disbursals; ~79 loans remain</td>
-        <td>Empirical / Current data</td>
-      </tr>
-      <tr>
-        <td><strong>B-Weighted: Data-Driven (Weighted by Disbursals)</strong></td>
-        <td>Weighted avg of P99 TLTV across buckets, weights = loan count per bucket</td>
-        <td class="center"><strong>1.187x</strong></td>
-        <td>Reflects actual distribution of the portfolio</td>
-        <td>Portfolio-adjusted</td>
-      </tr>
+      <tr><td>A</td><td class="center">130%</td><td class="center">1.30x</td><td class="center">100.0%</td><td>Highest M for highest band</td></tr>
+      <tr><td>B</td><td class="center">120%</td><td class="center">1.20x</td><td class="center">100.0%</td><td>Standard</td></tr>
+      <tr><td>C</td><td class="center">110%</td><td class="center">1.10x</td><td class="center">100.0%</td><td>Lighter inflation</td></tr>
+      <tr><td>D</td><td class="center">100%</td><td class="center">1.00x</td><td class="center">100.0%</td><td>No multiplier needed</td></tr>
     </tbody>
   </table>
+  <div class="callout callout-amber"><strong>Trade-off:</strong> Operationally complex. Valuation report would need different Medium values per band — confusing. Compliance prefers a single flat M.</div>
 
-  <div class="callout callout-amber" style="margin-top:12px;">
-    <strong>Why the gap between 1.349x and 1.195x?</strong> The VAS-implied multiplier (1.349x) is derived from the theoretical maximum of each VAS funded simultaneously at their DS1 ceiling. In practice, no single loan has all VAS at their maximum — the actual TLTV never exceeds 1.277x in the data. The empirical P99 of 1.195x is therefore the more grounded number. The difference (~15%) is the "unused" VAS headroom.
+  <div class="section-sub">Verdict: 1.20x Stands</div>
+  <div class="callout callout-green">
+    <strong>Recommended:</strong> Stay with <strong>M = 1.20x</strong>. Pair it with a policy amendment to <strong>tighten Band A from 130% → 120%</strong>. This combination:
+    <ul style="margin:8px 0 0 18px">
+      <li>Covers 100% of policy-compliant disbursals at Bajaj-visible 100% TLTV</li>
+      <li>Maintains operational simplicity (single multiplier)</li>
+      <li>Sacrifices &lt;2% of Band A volume — these can be routed via PartnerMaxx</li>
+      <li>Forward-compatible if VAS pricing changes</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════ TAB 3: GS VALUATION FORMAT ════════════════════════════ -->
+<div class="tab-content" id="tab3">
+
+<div class="section">
+  <div class="section-title">GS Valuation Report — Current State</div>
+  <p style="font-size:13px;color:#555;margin-bottom:10px">Sample taken from a live Saarathi valuation report (Ford Ecosport, 2013). The report carries a <strong>single valuation price</strong>. There is no Medium / High tier today.</p>
+  <div class="compare-grid">
+    <div class="compare-card current">
+      <h4>✗ Current Format (As-Is)</h4>
+      <div class="mockup">
+        <div class="mockup-header">CARS24 Valuation Report</div>
+        <div class="mockup-row"><span class="k">Car Make</span><span class="v">FORD</span></div>
+        <div class="mockup-row"><span class="k">Car Model</span><span class="v">Ecosport</span></div>
+        <div class="mockup-row"><span class="k">Car Variant</span><span class="v">TITANIUM 1.5L DIESEL (OPT)</span></div>
+        <div class="mockup-row"><span class="k">Fuel Type</span><span class="v">Diesel</span></div>
+        <div class="mockup-row"><span class="k">Registration No.</span><span class="v">MH12KJ0126</span></div>
+        <div class="mockup-row"><span class="k">Ownership No.</span><span class="v">2</span></div>
+        <div class="mockup-row"><span class="k">Registration Year</span><span class="v">Oct 2013</span></div>
+        <div class="mockup-row"><span class="k">Odometer</span><span class="v">1,29,497 km</span></div>
+        <div class="mockup-row"><span class="k">Chassis No.</span><span class="v">MAJAXXMRKADK*****</span></div>
+        <div class="mockup-row" style="background:#ffebee;border-top:2px solid #c62828;padding-top:8px"><span class="k"><strong>Final Valuation Price</strong></span><span class="v"><strong>₹2,88,000</strong></span></div>
+      </div>
+      <p style="font-size:11.5px;margin-top:8px;color:#666">Single-value report. No reference value usable as TLTV denominator beyond listing price.</p>
+    </div>
+
+    <div class="compare-card proposed">
+      <h4>✓ Proposed Format</h4>
+      <div class="mockup">
+        <div class="mockup-header" style="background:#2e7d32">CARS24 Valuation Report v2</div>
+        <div class="mockup-row"><span class="k">Car Make</span><span class="v">FORD</span></div>
+        <div class="mockup-row"><span class="k">Car Model</span><span class="v">Ecosport</span></div>
+        <div class="mockup-row"><span class="k">Car Variant</span><span class="v">TITANIUM 1.5L DIESEL (OPT)</span></div>
+        <div class="mockup-row"><span class="k">Fuel Type</span><span class="v">Diesel</span></div>
+        <div class="mockup-row"><span class="k">Registration No.</span><span class="v">MH12KJ0126</span></div>
+        <div class="mockup-row"><span class="k">Ownership No.</span><span class="v">2</span></div>
+        <div class="mockup-row"><span class="k">Registration Year</span><span class="v">Oct 2013</span></div>
+        <div class="mockup-row"><span class="k">Odometer</span><span class="v">1,29,497 km</span></div>
+        <div class="mockup-row"><span class="k">Chassis No.</span><span class="v">MAJAXXMRKADK*****</span></div>
+        <div class="mockup-row" style="background:#f4f6f9;padding-top:8px"><span class="k">Low Valuation (Listing Price)</span><span class="v">₹2,88,000</span></div>
+        <div class="mockup-row" style="background:#e8f5e9"><span class="k"><strong>Medium Valuation</strong> <span class="mockup-tag new">TLTV Anchor</span></span><span class="v"><strong>₹3,45,600</strong></span></div>
+        <div class="mockup-row" style="background:#f4f6f9"><span class="k">High Valuation</span><span class="v">₹3,59,424</span></div>
+        <div class="mockup-row" style="background:#fffde7;font-size:10.5px;color:#666"><span class="k" colspan="2"><em>Medium Valuation is the regulatory reference value used for TLTV computation in co-lending arrangements.</em></span></div>
+      </div>
+      <p style="font-size:11.5px;margin-top:8px;color:#2e7d32"><strong>Three-tier valuation:</strong> Low = listing price (unchanged), Medium = Low × 1.20 (TLTV anchor), High = Medium × 1.04 (4% buffer).</p>
+    </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ RECOMMENDATION ══ -->
 <div class="section">
-  <div class="section-title">Multiplier Recommendation &amp; Policy Calibration</div>
+  <div class="section-title">Field-Level Changes Required</div>
+  <table>
+    <thead><tr><th>Field</th><th>Current</th><th>Proposed</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td>Final Valuation Price</td><td>Single value</td><td>Renamed to <strong>"Low Valuation (Listing Price)"</strong></td><td>GS Tech</td></tr>
+      <tr><td>Medium Valuation</td><td>—</td><td><strong>New field</strong>: Low × 1.20 (auto-computed)</td><td>GS Model + Tech</td></tr>
+      <tr><td>High Valuation</td><td>—</td><td><strong>New field</strong>: Medium × 1.04 (auto-computed)</td><td>GS Model + Tech</td></tr>
+      <tr><td>Reference Note</td><td>—</td><td><strong>New footnote</strong>: Medium is the TLTV anchor per co-lending guidelines</td><td>GS + Compliance</td></tr>
+      <tr><td>Audit Trail</td><td>—</td><td><strong>New field</strong>: Multiplier version (M=1.20, effective DD-MMM-YYYY)</td><td>GS Tech</td></tr>
+    </tbody>
+  </table>
+</div>
 
-  <div class="rec-box">
-    <h3>Recommended Multipliers</h3>
-    <div class="rec-grid">
-      <div class="rec-item">
-        <div class="rlabel">Low Value (Current)</div>
-        <div class="rval" style="color:#555;">1.000x</div>
-        <div class="rsub">Today's listing price — no change</div>
+<div class="section">
+  <div class="section-title">Downstream Integration Map</div>
+  <table>
+    <thead><tr><th>System</th><th>Today</th><th>Change Required</th><th>Effort</th></tr></thead>
+    <tbody>
+      <tr><td><strong>GS Valuation Engine</strong></td><td>Outputs 1 price</td><td>Output 3 prices (Low/Medium/High); store M version</td><td>M</td></tr>
+      <tr><td><strong>Saarathi UI</strong></td><td>Shows Final Price</td><td>Show 3-tier table; mark Medium as TLTV anchor</td><td>S</td></tr>
+      <tr><td><strong>Policy / Underwriting Engine</strong></td><td>TLTV = TLS / LP</td><td>TLTV = TLS / Medium (where Medium = LP × 1.20)</td><td>L</td></tr>
+      <tr><td><strong>Bajaj API Payload</strong></td><td>asset_value = LP</td><td>asset_value = Medium Value</td><td>M</td></tr>
+      <tr><td><strong>LFL / Sanction Letter</strong></td><td>References LP as asset value</td><td>References Medium as "Certified Asset Value"</td><td>S</td></tr>
+      <tr><td><strong>MIS Dashboards</strong></td><td>TLTV reports use LP</td><td>Add Bajaj-visible TLTV (vs Medium) alongside legacy TLTV</td><td>M</td></tr>
+      <tr><td><strong>Audit / Compliance Logs</strong></td><td>—</td><td>Log multiplier version used per loan</td><td>S</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11.5px;color:#888;margin-top:6px">S = Small (≤1 week), M = Medium (1–3 weeks), L = Large (1–2 months). Estimates indicative.</p>
+
+  <div class="callout callout-amber">
+    <strong>Critical sequencing:</strong> GS model + Saarathi UI must go live BEFORE the policy engine flips to Medium-based TLTV. Otherwise the underwriting engine has no Medium value to consume. Recommended rollout: GS+UI in Sprint 1, policy engine in Sprint 2 with feature-flag, full cutover in Sprint 3.
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════ TAB 4: CUSTOMER COMMS ════════════════════════════ -->
+<div class="tab-content" id="tab4">
+
+<div class="section">
+  <div class="section-title">Communication Challenge</div>
+  <div class="callout callout-red">
+    <strong>The risk:</strong> If the customer sees "Asset Value: ₹3.45L" (Medium) on their loan agreement while having paid ₹2.88L for the car, two opposite perceptions can emerge:
+    <ul style="margin:8px 0 0 18px">
+      <li><strong>Perception A (LTV-aware customer):</strong> "My LTV looks artificially low — am I getting under-funded?"</li>
+      <li><strong>Perception B (price-aware customer):</strong> "Why does the bank think my car is worth ₹3.45L? Did I overpay?"</li>
+    </ul>
+  </div>
+  <div class="callout callout-green">
+    <strong>Guiding principle:</strong> The customer should never see a "Loan-to-Value %" or feel that they received less financing than expected. Frame everything around <strong>the absolute loan amount</strong> and <strong>the complete car ownership package</strong> — not ratios.
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Channel 1: TnC Acceptance Email</div>
+  <div class="compare-grid">
+    <div class="compare-card current">
+      <h4>✗ Current Email</h4>
+      <div class="mockup">
+        <div class="mockup-header">CONGRATULATIONS! Your Loan Has Been Approved</div>
+        <p style="font-size:11.5px;margin-bottom:8px">Dear Shravan Kumar Chinta,<br>You are eligible for a loan facility of up to <strong>Rs. 6,65,699</strong></p>
+        <div style="font-weight:700;margin-top:8px;color:#0066cc">Indicative Loan Terms</div>
+        <div class="mockup-row"><span class="k">Approved Loan Amount</span><span class="v">₹6,65,699</span></div>
+        <div class="mockup-row"><span class="k">EMI</span><span class="v">₹16,012</span></div>
+        <div class="mockup-row"><span class="k">Tenure</span><span class="v">60 months</span></div>
+        <div class="mockup-row"><span class="k">ROI</span><span class="v">15.5% p.a.</span></div>
+        <div style="font-weight:700;margin-top:8px;color:#0066cc">Breakup of Approved Loan Amount</div>
+        <div class="mockup-row"><span class="k">A. Total Price of Car</span><span class="v">₹6,77,000</span></div>
+        <div class="mockup-row"><span class="k">B. Downpayment</span><span class="v">₹1,00,000</span></div>
+        <div class="mockup-row"><span class="k">C. Car Finance (A–B)</span><span class="v">₹5,77,000</span></div>
+        <div class="mockup-row"><span class="k">D. Total Charges</span><span class="v">₹15,285</span></div>
+        <div class="mockup-row"><span class="k">E. Value Added Services</span><span class="v">₹73,414</span></div>
+        <div class="mockup-row" style="background:#ffebee"><span class="k"><strong>F. Approved Loan (C+D+E)</strong></span><span class="v"><strong>₹6,65,699</strong></span></div>
       </div>
-      <div class="rec-item">
-        <div class="rlabel">Medium Multiplier</div>
-        <div class="rval">1.20x</div>
-        <div class="rsub">Covers 99% of portfolio | Practical clean number | Policy anchor</div>
+      <p style="font-size:11.5px;margin-top:8px;color:#666">No LTV mentioned. Listing price (₹6,77,000) shown directly. Customer mentally computes: loan/car = 98% — acceptable.</p>
+    </div>
+
+    <div class="compare-card proposed">
+      <h4>✓ Proposed Email (Minimal Changes)</h4>
+      <div class="mockup">
+        <div class="mockup-header" style="background:#2e7d32">CONGRATULATIONS! Your Car Ownership Package is Ready</div>
+        <p style="font-size:11.5px;margin-bottom:8px">Dear Shravan Kumar Chinta,<br>Your <strong>complete car ownership package</strong> of <strong>Rs. 6,65,699</strong> has been approved.</p>
+        <div style="font-weight:700;margin-top:8px;color:#2e7d32">Your Loan Terms</div>
+        <div class="mockup-row"><span class="k">Total Financed Amount</span><span class="v">₹6,65,699</span></div>
+        <div class="mockup-row"><span class="k">EMI</span><span class="v">₹16,012</span></div>
+        <div class="mockup-row"><span class="k">Tenure</span><span class="v">60 months</span></div>
+        <div class="mockup-row"><span class="k">ROI</span><span class="v">15.5% p.a.</span></div>
+        <div style="font-weight:700;margin-top:8px;color:#2e7d32">What You Get</div>
+        <div class="mockup-row"><span class="k">Your Car (Hyundai Creta 2018)</span><span class="v">₹6,77,000</span></div>
+        <div class="mockup-row"><span class="k">Less: Your Downpayment</span><span class="v">– ₹1,00,000</span></div>
+        <div class="mockup-row"><span class="k">Vehicle Loan</span><span class="v">₹5,77,000</span></div>
+        <div class="mockup-row"><span class="k">Extended Warranty (3 yr)</span><span class="v">₹31,860</span></div>
+        <div class="mockup-row"><span class="k">Loan Protection (Protekt Pro)</span><span class="v">₹20,810</span></div>
+        <div class="mockup-row"><span class="k">RTO + Documentation</span><span class="v">₹13,000</span></div>
+        <div class="mockup-row"><span class="k">GPS + Car Health Monitor</span><span class="v">₹5,931</span></div>
+        <div class="mockup-row"><span class="k">Processing &amp; Stamp Duty</span><span class="v">₹17,098</span></div>
+        <div class="mockup-row" style="background:#e8f5e9"><span class="k"><strong>Total Package Financed</strong></span><span class="v"><strong>₹6,65,699</strong></span></div>
+        <div class="mockup-row" style="font-size:10.5px;color:#666;background:#fffde7"><span class="k"><em>* CARS24 Certified Vehicle Value (for compliance): ₹8,12,400</em></span></div>
       </div>
-      <div class="rec-item">
-        <div class="rlabel">High Multiplier</div>
-        <div class="rval">1.25x</div>
-        <div class="rsub">~99.8% coverage | 5% buffer on Medium | Future-proofs VAS changes</div>
+      <p style="font-size:11.5px;margin-top:8px;color:#2e7d32"><strong>Changes:</strong> (1) Frame as "complete package" not "loan". (2) Keep listing price (₹6.77L) prominent. (3) Add small disclosure of Certified Value in fine print only — for legal cover. (4) No LTV% anywhere.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Channel 2: Cars24 App (Loan Journey)</div>
+  <p style="font-size:13px;color:#555;margin-bottom:10px">In-app communication is the customer's primary surface during loan journey. Maximum control over framing here.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+    <div>
+      <h5 style="font-size:12.5px;color:#c62828;margin-bottom:6px">✗ Current (Risk)</h5>
+      <div class="app-mockup">
+        <div class="app-h">Loan Approval</div>
+        <div class="app-card"><strong>Loan Approved!</strong><br><span style="font-size:18px;color:#0066cc">₹6,65,699</span><br><span style="color:#666">EMI ₹16,012 × 60</span></div>
+        <div class="app-card">
+          <div style="font-weight:700;color:#0066cc;font-size:11px;margin-bottom:6px">LOAN DETAILS</div>
+          <div class="mockup-row"><span class="k">Car Value</span><span class="v">₹6,77,000</span></div>
+          <div class="mockup-row" style="background:#fff3e0"><span class="k">Certified Value</span><span class="v">₹8,12,400</span></div>
+          <div class="mockup-row" style="background:#ffebee"><span class="k">LTV</span><span class="v">81.9%</span></div>
+        </div>
+        <div style="text-align:center;color:#c62828;font-size:11px;margin-top:4px"><em>"Wait — why is my LTV 82%? I expected more!"</em></div>
+      </div>
+    </div>
+    <div>
+      <h5 style="font-size:12.5px;color:#2e7d32;margin-bottom:6px">✓ Proposed (Package Framing)</h5>
+      <div class="app-mockup">
+        <div class="app-h" style="background:#2e7d32">Your Package is Ready</div>
+        <div class="app-card" style="background:linear-gradient(135deg,#e8f5e9,#fff)"><strong>You're All Set!</strong><br><span style="font-size:20px;color:#2e7d32;font-weight:800">₹6,65,699</span><br><span style="color:#666">Complete Car Ownership Package</span><br><span style="font-size:11px;color:#888">EMI ₹16,012 × 60 months</span></div>
+        <div class="app-card">
+          <div style="font-weight:700;color:#2e7d32;font-size:11px;margin-bottom:6px">WHAT'S COVERED</div>
+          <div class="mockup-row"><span class="k">🚗 Your Hyundai Creta</span><span class="v">₹5,77,000</span></div>
+          <div class="mockup-row"><span class="k">🛡 Extended Warranty</span><span class="v">₹31,860</span></div>
+          <div class="mockup-row"><span class="k">💼 Loan Protection</span><span class="v">₹20,810</span></div>
+          <div class="mockup-row"><span class="k">📋 RTO + Docs</span><span class="v">₹13,000</span></div>
+          <div class="mockup-row"><span class="k">📍 GPS + Health Monitor</span><span class="v">₹5,931</span></div>
+          <div class="mockup-row"><span class="k">📝 Processing Fees</span><span class="v">₹17,098</span></div>
+        </div>
+        <div style="text-align:center;color:#2e7d32;font-size:11px;margin-top:4px"><em>Customer sees value, not ratio ✓</em></div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="section-sub">Impact of Medium Multiplier (1.20x) — Sample Calculations</div>
+<div class="section">
+  <div class="section-title">Communication Principles — Do &amp; Don't</div>
+  <div class="compare-grid">
+    <div class="compare-card proposed">
+      <h4>✓ DO</h4>
+      <ul style="font-size:12.5px;line-height:1.8;padding-left:18px">
+        <li>Lead with <strong>absolute loan amount</strong> (₹6,65,699)</li>
+        <li>Show <strong>listing price</strong> of car as "Total Price of Car"</li>
+        <li>Itemise each VAS with what the customer gets</li>
+        <li>Frame as "Complete Ownership Package" / "What's Covered"</li>
+        <li>Use icons + plain-language descriptions</li>
+        <li>Disclose "Certified Value" only in fine print, footnote, for compliance</li>
+        <li>If customer asks: explain that Certified Value is independent appraisal for regulatory purposes — doesn't affect their loan</li>
+      </ul>
+    </div>
+    <div class="compare-card current">
+      <h4>✗ DON'T</h4>
+      <ul style="font-size:12.5px;line-height:1.8;padding-left:18px">
+        <li>Show <strong>LTV percentage</strong> anywhere — app, email, agreement</li>
+        <li>Show Medium Value prominently above the listing price</li>
+        <li>Use the word "loan-to-value" in customer comms</li>
+        <li>Show Bajaj / co-lender split to customer</li>
+        <li>Compare to industry LTV norms</li>
+        <li>Use terms like "denominator", "TLTV", "valuation multiplier"</li>
+        <li>Send communications where Medium Value &gt; Listing Price without context</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Edge Cases &amp; Open Items</div>
+  <div class="open-point"><div class="op-title">⚠ Loan Agreement / LFL Wording</div>Legal team to confirm how Medium Value is referenced in the Loan Facilitation Letter and the Sanction Letter. Recommended language: "CARS24 Certified Vehicle Value: ₹X (per independent appraisal as required under co-lending regulations)". Avoid the term "asset value".</div>
+  <div class="open-point"><div class="op-title">⚠ RBI / Compliance Disclosures</div>If any regulator-mandated disclosure (e.g., key fact statement) shows LTV or asset value, that disclosure must continue to use the legacy listing price — not Medium — for customer-facing clarity. Internal Bajaj reporting uses Medium.</div>
+  <div class="open-point"><div class="op-title">⚠ Customer Helpline Script</div>Train care.loans@cars24.com agents on the standard explanation: "Your loan amount, EMI, and tenure are exactly as we offered. The Certified Value is an independent appraisal we are required to capture for regulatory purposes — it does not change anything about your loan."</div>
+  <div class="open-point"><div class="op-title">⚠ Existing Customers / Foreclosure Statements</div>Customers who took loans before the cutover should continue to see legacy framing. Apply the new format only to loans sanctioned post-cutover. Statement screens must conditionally render.</div>
+</div>
+</div>
+
+<!-- ════════════════════════════ TAB 5: FIELD TRAINING ════════════════════════════ -->
+<div class="tab-content" id="tab5">
+
+<div class="section">
+  <div class="section-title">Training Programme Overview</div>
+  <div class="callout callout-blue">
+    <strong>Target audience:</strong> Sales executives, Field underwriters, Doorstep agents, Tele-callers, Customer support, Branch Ops. ~2,500 field personnel across India (rough estimate — confirm with L&amp;D).<br>
+    <strong>Total duration:</strong> 4–5 hours per executive, blended (LMS + Live + Field Test).
+  </div>
+  <div class="section-sub">Rollout Approach: Train-the-Trainer</div>
   <table>
-    <thead>
-      <tr>
-        <th>Listing Price (Low)</th><th class="center">Medium (×1.20)</th><th class="center">High (×1.25)</th>
-        <th class="center">Current TLTV Cap (eg 110%)</th><th class="center">New TLTV Cap (÷1.20)</th>
-        <th class="center">Max Loan — Old</th><th class="center">Max Loan — New</th><th class="center">Change?</th>
-      </tr>
-    </thead>
+    <thead><tr><th>Phase</th><th>Duration</th><th>Audience</th><th>Format</th><th>Owner</th></tr></thead>
     <tbody>
-      <tr><td>₹2,00,000</td><td class="center">₹2,40,000</td><td class="center">₹2,50,000</td><td class="center">110%</td><td class="center">91.67%</td><td class="center">₹2,20,000</td><td class="center">₹2,20,000</td><td class="center" style="color:#2e7d32;font-weight:700;">No change ✓</td></tr>
-      <tr><td>₹3,00,000</td><td class="center">₹3,60,000</td><td class="center">₹3,75,000</td><td class="center">110%</td><td class="center">91.67%</td><td class="center">₹3,30,000</td><td class="center">₹3,30,000</td><td class="center" style="color:#2e7d32;font-weight:700;">No change ✓</td></tr>
-      <tr><td>₹5,00,000</td><td class="center">₹6,00,000</td><td class="center">₹6,25,000</td><td class="center">110%</td><td class="center">91.67%</td><td class="center">₹5,50,000</td><td class="center">₹5,50,000</td><td class="center" style="color:#2e7d32;font-weight:700;">No change ✓</td></tr>
-      <tr><td>₹7,50,000</td><td class="center">₹9,00,000</td><td class="center">₹9,37,500</td><td class="center">110%</td><td class="center">91.67%</td><td class="center">₹8,25,000</td><td class="center">₹8,25,000</td><td class="center" style="color:#2e7d32;font-weight:700;">No change ✓</td></tr>
-      <tr><td>₹10,00,000</td><td class="center">₹12,00,000</td><td class="center">₹12,50,000</td><td class="center">110%</td><td class="center">91.67%</td><td class="center">₹11,00,000</td><td class="center">₹11,00,000</td><td class="center" style="color:#2e7d32;font-weight:700;">No change ✓</td></tr>
+      <tr><td>Phase 0: Core Team</td><td>1 week</td><td>L&amp;D + Regional Managers (~30)</td><td>Live workshop + content review</td><td>L&amp;D Head</td></tr>
+      <tr><td>Phase 1: Trainers</td><td>2 weeks</td><td>Regional Trainers (~80)</td><td>Live train-the-trainer</td><td>L&amp;D + Regional Managers</td></tr>
+      <tr><td>Phase 2: Field Rollout</td><td>3 weeks</td><td>All field staff (~2,500)</td><td>LMS modules + live Q&amp;A</td><td>Regional Trainers</td></tr>
+      <tr><td>Phase 3: Certification</td><td>1 week</td><td>All field staff</td><td>Online assessment (passing 80%)</td><td>L&amp;D</td></tr>
+      <tr><td>Phase 4: Refresher</td><td>Ongoing</td><td>All staff</td><td>Monthly micro-learning</td><td>L&amp;D</td></tr>
     </tbody>
   </table>
-  <p style="font-size:11.5px;color:#888;margin-top:6px;">* Example uses 110% TLTV cap. Actual cap may vary by risk band / channel. New cap = Current cap ÷ 1.20. Proof: New cap × Medium value = Current cap × Listing price.</p>
+</div>
 
-  <!-- Open Points -->
-  <div class="section-sub">Open Points &amp; Actions Required</div>
-
-  <div class="open-point">
-    <div class="op-title">⚠ Open Point 1 — The &lt;3L Bucket Tension</div>
-    VAS-implied M for &lt;3L is 1.349x, significantly higher than the recommended consolidated M of 1.20x. However, the actual TLTV P99 in this bucket is only 1.194x and the absolute max is 1.277x — confirming that all-VAS-at-max doesn't occur in practice. <br><br>
-    <strong>Recommendation:</strong> Apply the consolidated 1.20x multiplier AND introduce a policy cap on Car VAS funding for ASP &lt;₹3L (particularly Motor Insurance, which hits 10.1% of median ASP). The ~15 loans/month in the residual 1% can be managed via manual review or by excluding sub-₹3L loans from co-lending where TLTV remains elevated.
+<div class="section">
+  <div class="section-title">Training Modules</div>
+  <div class="training-grid">
+    <div class="training-card">
+      <div class="tm"><div class="tm-num">1</div><div class="tm-dur">30 min</div></div>
+      <h5>Why This is Changing</h5>
+      <ul>
+        <li>Bajaj co-lending background (50% → 80–90% target)</li>
+        <li>The 100% TLTV regulatory consideration</li>
+        <li>Impact on funnel if unresolved (~₹X cr/month at risk)</li>
+        <li>What it means for your incentive structure</li>
+      </ul>
+    </div>
+    <div class="training-card">
+      <div class="tm"><div class="tm-num">2</div><div class="tm-dur">45 min</div></div>
+      <h5>New Valuation Report</h5>
+      <ul>
+        <li>How to read Low / Medium / High</li>
+        <li>What you tell the customer (Low only)</li>
+        <li>Where Medium appears in Saarathi</li>
+        <li>Why High exists (buffer for edge cases)</li>
+      </ul>
+    </div>
+    <div class="training-card">
+      <div class="tm"><div class="tm-num">3</div><div class="tm-dur">60 min</div></div>
+      <h5>Policy &amp; Approval Flow</h5>
+      <ul>
+        <li>TLTV cap = Old Cap ÷ 1.20 (new)</li>
+        <li>Customer's max loan amount: unchanged</li>
+        <li>Band-wise eligibility refresher</li>
+        <li>Cases routed to PartnerMaxx</li>
+      </ul>
+    </div>
+    <div class="training-card">
+      <div class="tm"><div class="tm-num">4</div><div class="tm-dur">60 min</div></div>
+      <h5>Customer Conversation</h5>
+      <ul>
+        <li>The "Complete Ownership Package" pitch</li>
+        <li>What to say / not say (DO/DON'T list)</li>
+        <li>Handling LTV questions confidently</li>
+        <li>Role-play scenarios</li>
+      </ul>
+    </div>
+    <div class="training-card">
+      <div class="tm"><div class="tm-num">5</div><div class="tm-dur">45 min</div></div>
+      <h5>Saarathi System Walkthrough</h5>
+      <ul>
+        <li>Updated loan application screens</li>
+        <li>Where 3-tier valuation appears</li>
+        <li>Approval / rejection flags</li>
+        <li>What to do if Medium value missing</li>
+      </ul>
+    </div>
+    <div class="training-card">
+      <div class="tm"><div class="tm-num">6</div><div class="tm-dur">45 min</div></div>
+      <h5>Escalation &amp; Edge Cases</h5>
+      <ul>
+        <li>Customer complaints about "low LTV perception"</li>
+        <li>Loan agreement queries</li>
+        <li>When to loop in regional manager</li>
+        <li>Escalation matrix</li>
+      </ul>
+    </div>
+    <div class="training-card">
+      <div class="tm"><div class="tm-num">7</div><div class="tm-dur">30 min</div></div>
+      <h5>Assessment &amp; Certification</h5>
+      <ul>
+        <li>20-question MCQ (passing 80%)</li>
+        <li>2 role-play scenarios (live)</li>
+        <li>Certification valid 12 months</li>
+        <li>Re-test policy for failures</li>
+      </ul>
+    </div>
+    <div class="training-card">
+      <div class="tm"><div class="tm-num">8</div><div class="tm-dur">Ongoing</div></div>
+      <h5>Monthly Refresher</h5>
+      <ul>
+        <li>5-min micro-learning on LMS</li>
+        <li>New FAQs from the field</li>
+        <li>Policy updates / VAS pricing changes</li>
+        <li>Quarterly performance review</li>
+      </ul>
+    </div>
   </div>
+</div>
 
-  <div class="open-point">
-    <div class="op-title">⚠ Open Point 2 — Motor Insurance Outliers</div>
-    MI max is consistently 2x–6x the P95 across buckets (e.g., ₹74,745 max vs ₹24,109 P95 in aggregate). These outliers are being capped at P95 for the multiplier calculation. Investigate these high-MI cases — are they data errors, or genuinely high-value insurance for modified/premium variants? If systematic, consider a hard cap on MI funding in the DS1 model.
+<div class="section">
+  <div class="section-title">Customer FAQ Cheat Sheet (Field Reference)</div>
+
+  <div class="faq-item">
+    <div class="faq-q">Why does my loan agreement show a "Certified Value" higher than the price I'm paying for the car?</div>
+    <div class="faq-a">The Certified Value is an independent vehicle assessment we are required to capture for regulatory purposes under our co-lending arrangement. It does not change your loan amount, EMI, or what you pay for the car. Your purchase price is unchanged.</div>
   </div>
-
-  <div class="open-point">
-    <div class="op-title">⚠ Open Point 3 — RTO Outliers (Consistent Pattern)</div>
-    RTO max exceeds 2×P95 in 5 of 6 buckets and is capped at P95 throughout. Aggregate max is ₹84,725 vs P95 of ₹19,042 — a 4.4× gap. This is a consistent pattern suggesting certain states (likely Maharashtra, Kerala) have very high RTO fees. Consider a geographic cap or separate multiplier flag for high-RTO states.
+  <div class="faq-item">
+    <div class="faq-q">My LTV looks much lower than what I was told earlier — am I getting less loan?</div>
+    <div class="faq-a">Your loan amount is exactly the same as offered: ₹X. The way the loan-to-value is calculated has been updated due to our co-lending partner's requirements, but this does not affect your loan amount, EMI, or tenure in any way.</div>
   </div>
-
-  <div class="open-point">
-    <div class="op-title">⚠ Open Point 4 — Customer Communication</div>
-    Once the multiplier is applied, all customer-facing documents (TNC acceptance email, sanction letter, loan agreement) must be updated to remove any reference to: listing price, asset value, TLTV, or LTV percentage. Only show: total loan sanction, EMI, tenure, rate of interest. Showing the "Medium" asset value to the customer would create confusion since it exceeds the price they paid.
+  <div class="faq-item">
+    <div class="faq-q">Is my car being overvalued so the bank looks good?</div>
+    <div class="faq-a">No — the Certified Value is independent and used only for compliance purposes. Your car's market value is the price you're paying. The Certified Value is a parallel reference used internally by us and our co-lending partner.</div>
   </div>
+  <div class="faq-item">
+    <div class="faq-q">Why is my downpayment still the same? Shouldn't the higher valuation reduce my downpayment?</div>
+    <div class="faq-a">Downpayment is decided based on the car's purchase price and your loan eligibility — not the Certified Value. The Certified Value is a regulatory reference; it doesn't change your downpayment, EMI, or financing terms.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">What happens if I want to foreclose the loan — will I get more refund because of the higher valuation?</div>
+    <div class="faq-a">No. Foreclosure is calculated on your actual outstanding loan amount, not the Certified Value. Your foreclosure process and refund logic are unchanged.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Did Cars24 change its valuation methodology?</div>
+    <div class="faq-a">Our underlying vehicle valuation methodology is unchanged. We have added a parallel Certified Value that meets the co-lending partner's regulatory reference requirement. The price you pay for the car is determined by our standard valuation, same as before.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Does this affect the resale value of my car?</div>
+    <div class="faq-a">Absolutely not. Resale value is determined by market conditions at the time you sell — depreciation, mileage, condition. The Certified Value is an internal reference only.</div>
+  </div>
+</div>
 
-  <div class="open-point">
-    <div class="op-title">⚠ Open Point 5 — Weighted vs. Max Consolidated Multiplier Decision</div>
-    There are 4 possible consolidated multiplier choices ranging from 1.187x to 1.349x. The recommended 1.20x is a rounded version of the data-driven max (1.195x). If the business wants to future-proof against VAS expansion, the weighted VAS-implied M of 1.269x (≈1.27x) may be preferred. Decision should involve the Risk, Finance and Compliance teams jointly.
+<div class="section">
+  <div class="section-title">Communication Pack for Internal Stakeholders</div>
+  <table>
+    <thead><tr><th>Stakeholder</th><th>What They Need</th><th>Format</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td>Sales Leadership</td><td>Funnel impact, target adjustments</td><td>1-pager + monthly dashboard</td><td>Business Finance</td></tr>
+      <tr><td>Regional Managers</td><td>Field rollout plan + escalation tree</td><td>Playbook (15 pages)</td><td>L&amp;D + Ops</td></tr>
+      <tr><td>Sales / Field Staff</td><td>Customer conversation guide + FAQs</td><td>LMS module + pocket card</td><td>L&amp;D</td></tr>
+      <tr><td>Underwriting / Credit</td><td>Policy amendments + system changes</td><td>Detailed credit circular</td><td>Credit Policy Head</td></tr>
+      <tr><td>Customer Support</td><td>Helpline script + escalation matrix</td><td>Script document + LMS</td><td>L&amp;D + CX</td></tr>
+      <tr><td>Tech / Product</td><td>System change requirements</td><td>BRD + JIRA stories</td><td>Product Manager</td></tr>
+      <tr><td>Bajaj / Co-lending Partners</td><td>Confirmation of compliance</td><td>Formal communication + SLA update</td><td>NBFC Compliance</td></tr>
+      <tr><td>Internal Audit</td><td>Audit trail of multiplier rollout</td><td>Change-log + sign-off records</td><td>Risk Head</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <div class="section-title">Success Metrics</div>
+  <div class="kpi-grid">
+    <div class="kpi-tile"><div class="kt-l">Training Coverage</div><div class="kt-v">≥ 98%</div><div class="kt-l">Field staff certified within 6 weeks</div></div>
+    <div class="kpi-tile g"><div class="kt-l">Bajaj Eligibility</div><div class="kt-v">≥ 99%</div><div class="kt-l">% disbursals passing TLTV ≤ 100%</div></div>
+    <div class="kpi-tile g"><div class="kt-l">Co-lending Share</div><div class="kt-v">80–90%</div><div class="kt-l">From current ~50%</div></div>
+    <div class="kpi-tile"><div class="kt-l">Customer Complaints</div><div class="kt-v">&lt; 0.5%</div><div class="kt-l">Related to LTV / valuation perception</div></div>
+    <div class="kpi-tile"><div class="kt-l">FAQ Resolution</div><div class="kt-v">&lt; 24 hrs</div><div class="kt-l">Field escalation TAT</div></div>
+    <div class="kpi-tile a"><div class="kt-l">Pending: D2C/DCF</div><div class="kt-v">TBD</div><div class="kt-l">Channel-wise validation</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════ NEXT STEPS BANNER ════════════════════════════ -->
+<div class="section" style="background:linear-gradient(135deg,#fff8e1,#fff)">
+  <div class="section-title">Next Step: Channel Validation (D2C / DCF)</div>
+  <div class="callout callout-amber">
+    Current analysis is <strong>C2C-only</strong>. The user has flagged this is <strong>not a channel-agnostic problem</strong>. Before finalising the 1.20x multiplier as portfolio-wide, run the same Step 1–4 analysis on D2C and DCF channel disbursals (Jan–Apr 2026) and verify:
+    <ul style="margin:8px 0 0 18px">
+      <li>Whether breach rates differ materially across channels</li>
+      <li>Whether VAS % of ASP varies by channel (D2C/DCF may have different VAS mix)</li>
+      <li>Whether the binding bucket / P99 multiplier matches C2C</li>
+      <li>Whether a single 1.20x works or channel-specific multipliers are warranted</li>
+    </ul>
+    <strong>Deliverable:</strong> Combined cross-channel master summary table + portfolio-wide consolidated multiplier recommendation.
   </div>
 </div>
 
 <div class="footer">
-  Cars24 NBFC — Internal Use Only &nbsp;|&nbsp; Analysis Period: Jan–Apr 2026 &nbsp;|&nbsp; Basis: Internal Disbursals, DS1 Max VAS Values
+  Cars24 NBFC — Internal Use Only &nbsp;|&nbsp; Analysis: Jan–Apr 2026, C2C Internal Disbursals &nbsp;|&nbsp; DS1 Max VAS Values &nbsp;|&nbsp; Multiplier Recommendation: 1.20x Medium / 1.25x High
 </div>
 
 </div>
+
+<script>
+function showTab(idx, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab' + idx).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
 </body>
 </html>
